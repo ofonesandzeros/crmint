@@ -261,7 +261,7 @@ def create_cloudsql_instance_if_needed(stage, debug=False):
             --availability-type={database_ha_type}
         """)
     shared.execute_command(
-        'Creating a CloudSQL instance (with public IP)', cmd, debug=debug)
+        'Creating a CloudSQL instance', cmd, debug=debug)
 
 
 def _check_if_cloudsql_user_exists(stage, debug=False):
