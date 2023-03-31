@@ -1036,7 +1036,7 @@ def setup(stage_path: Union[None, str], debug: bool) -> None:
       create_pubsub_subscriptions,
       _grant_required_permissions,
       create_scheduler_job,
-      download_config_files,
+      #download_config_files,
   ])
   for component in components:
     component(stage, debug=debug)
