@@ -511,6 +511,8 @@ def create_conversion_event_ga4(
     ValueError: if input values do not meet API conditions.
   """
   progress_callback = progress_callback or _null_progress_callback
+  if len(event_name) > 40:
+    raise ValueError('Event names must be 40 characters or fewer.')
   fields = {'eventName': event_name}
   try:
     request = ga_client.properties().conversionEvents().create(
