@@ -99,6 +99,40 @@ class TestGA4ConversionEventCreator(absltest.TestCase):
         patched_logger.mock_calls
     )
 
+  def test_raises_value_error_if_converion_event_too_long(self):
+    request_builder = http.RequestMockBuilder({
+        'analyticsadmin.properties.conversionEvents.create': (None, b'{}'),
+    })
+    ga_client = ga_utils.get_client(
+        'analyticsadmin', 'v1alpha',
+        http=self.http_v1alpha, request_builder=request_builder)
+    mock_get_client = self.enter_context(
+        mock.patch.object(
+            ga_utils, 'get_client', autospec=True, return_value=ga_client))
+    worker_inst = ga_conversion_event_creator_ga4.GA4ConversionEventCreator(
+        {
+            'ga_property_id': '123456789',
+            'event_name': 'conversioneventlongerthanfortycharactersjustbarely',
+        },
+        pipeline_id=1,
+        job_id=1,
+        logger_project='PROJECT',
+        logger_credentials=_make_credentials())
+    patched_logger = self.enter_context(
+        mock.patch.object(worker_inst, 'log_info', autospec=True))
+    worker_inst.execute()
+    mock_get_client.assert_called_once_with('analyticsadmin', 'v1alpha')
+    self.assertSequenceEqual(
+        [
+            mock.call(mock.ANY),
+            mock.call('Creating new conversion event named '
+                      'conversioneventlongerthanfortycharactersjustbarely.'),
+            mock.call('Event names must be 40 characters or fewer.'),
+            mock.call('Finished successfully'),
+        ],
+        patched_logger.mock_calls
+    )
+    
 
 if __name__ == '__main__':
   absltest.main()
