@@ -55,6 +55,15 @@ fi
 . .venv/bin/activate
 pip install --quiet --upgrade pip
 pip install --quiet -e cli/
+# Find the line number where the import statement for 'appcli' starts
+line_number=$(grep -n -m 1 'from appcli import entry_point' $HOME/crmint/.venv/bin/crmint | cut -d ':' -f 1)
+
+# Insert the lines before the import statement
+sed -i "${line_number}isys.path.insert(0, crmint_cli_path)" $HOME/crmint/.venv/bin/crmint
+sed -i "${line_number}icrmint_cli_path = os.path.join(os.path.expanduser('~'), 'crmint', 'cli')" $HOME/crmint/.venv/bin/crmint
+sed -i "${line_number}iimport sys" $HOME/crmint/.venv/bin/crmint
+sed -i "${line_number}iimport os" $HOME/crmint/.venv/bin/crmint
+sed -i "${line_number}i# Add CRMint CLI path to the Python path" $HOME/crmint/.venv/bin/crmint
 
 # Adds the wrapper function to the user `.bashrc` file.
 echo -e "\\nAdding a bash function to your $HOME/.bashrc file."
