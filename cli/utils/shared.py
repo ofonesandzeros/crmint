@@ -97,15 +97,14 @@ def execute_command(step_name: str,
   if not debug and capture_outputs:
     return status, out, err
   if status != 0 and (err or report_empty_err):
-    #click.echo('')
-    #click.secho(f'Failed step "{step_name}"', fg='red', bold=True)
+    click.echo('')
+    click.secho(f'Failed step "{step_name}"', fg='red', bold=True)
     #click.echo(f'command: {command}')
     #click.echo(f'exit code: {status}')
     #click.echo('stderr:')
     #click.echo(textwrap.indent(err or '<EMPTY>', '  '))
     #click.echo('stdout:')
     #click.echo(textwrap.indent(out or '<EMPTY>', '  '))
-    click.echo('')
   elif debug and not debug_uses_std_out:
     click.echo('stdout:')
     click.echo(textwrap.indent(out or '<EMPTY>', '  '))
