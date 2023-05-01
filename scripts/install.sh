@@ -43,8 +43,12 @@ if [ ! -d $HOME/crmint ]; then
 fi
 cd $HOME/crmint
 
+# Ensures the correct fork.
+git remote add upstream https://github.com/instant-bqml/crmint.git
+git fetch upstream
+git checkout -B $TARGET_BRANCH upstream/$TARGET_BRANCH
+
 # Updates the targeted branch.
-git checkout $TARGET_BRANCH
 git pull --quiet --rebase
 
 # Installs the command-line.
