@@ -14,13 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-TARGET_BRANCH=$1
-RUN_COMMAND=$2
-COMMAND_OPTIONS=$3
-CURRENT_DIR=$(pwd)
+set -e
 
-COMMAND=""
-if [[ ! -z "$RUN_COMMAND" ]]; then
+function parse_command_line_arguments() {
+  TARGET_BRANCH=$1
+  RUN_COMMAND=$2
+  COMMAND_OPTIONS=$3
+  CURRENT_DIR=$(pwd)
+
   case "${RUN_COMMAND}" in
     --bundle)
       COMMAND="crmint bundle install"
@@ -34,35 +35,38 @@ if [[ ! -z "$RUN_COMMAND" ]]; then
     echo "Will run the following command after installing the CRMint command line"
     echo " ${COMMAND} ${COMMAND_OPTIONS}"
   fi
-fi
+}
 
-# Downloads the source code.
-if [ ! -d $HOME/crmint ]; then
-  git clone https://github.com/instant-bqml/crmint.git $HOME/crmint
-  echo "\\nCloned crmint repository to your home directory: $HOME."
-fi
-cd $HOME/crmint
+function clone_and_checkout_repository() {
+  FORK_URL="https://github.com/instant-bqml/crmint.git"
 
-# Ensures the correct fork.
-git remote add upstream https://github.com/instant-bqml/crmint.git
-git fetch upstream
-git checkout -B $TARGET_BRANCH upstream/$TARGET_BRANCH
+  if [ ! -d $HOME/crmint ]; then
+    git clone $FORK_URL $HOME/crmint
+    echo "Cloned crmint repository to your home directory: $HOME."
+  fi
 
-# Updates the targeted branch.
-git pull --quiet --rebase
+  cd $HOME/crmint
+  git remote set-url origin $FORK_URL
+  git fetch --all --quiet
+  git checkout $TARGET_BRANCH
+  git pull --quiet --rebase
+}
 
-# Installs the command-line.
-if [ ! -d .venv ]; then
-  sudo apt-get install -y python3-venv
-  python3 -m venv .venv
-fi
-. .venv/bin/activate
-pip install --quiet --upgrade "pip<23.0"
-pip install --quiet -e cli/
+function install_command_line() {
+  if [ ! -d .venv ]; then
+    sudo apt-get install -y python3-venv
+    python3 -m venv .venv
+  fi
 
-# Adds the wrapper function to the user `.bashrc` file.
-echo -e "\\nAdding a bash function to your $HOME/.bashrc file."
-cat <<EOF >>$HOME/.bashrc
+  . .venv/bin/activate
+  pip install --quiet --upgrade "pip<23.0"
+  pip install --quiet -e cli/
+}
+
+function add_wrapper_function_to_bashrc() {
+  echo -e "\\nAdding a bash function to your $HOME/.bashrc file."
+
+  cat <<EOF >>$HOME/.bashrc
 
 # CRMint wrapper function.
 # Automatically activates the virtualenv and makes the command
@@ -76,16 +80,23 @@ function crmint {
   cd "\$CURRENT_DIR"
 }
 EOF
+}
 
-# Restores initial directory.
+function run_command_line() {
+  if [[ ! -z "$COMMAND" ]]; then
+    hash -r
+    eval "${COMMAND} ${COMMAND_OPTIONS}"
+  else
+    echo -e "\nSuccessfully installed the CRMint command-line."
+    echo "You can use it now by typing: crmint --help"
+    exec bash
+  fi
+}
+
+# Main script execution
+parse_command_line_arguments "$@"
+clone_and_checkout_repository
+install_command_line
+add_wrapper_function_to_bashrc
 cd "$CURRENT_DIR"
-
-# Runs the command line if configured for.
-if [[ ! -z "$COMMAND" ]]; then
-  hash -r
-  eval "${COMMAND} ${COMMAND_OPTIONS}"
-else
-  echo -e "\nSuccessfully installed the CRMint command-line."
-  echo "You can use it now by typing: crmint --help"
-  exec bash
-fi
+run_command_line
