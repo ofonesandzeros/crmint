@@ -36,6 +36,9 @@ if [[ ! -z "$RUN_COMMAND" ]]; then
   fi
 fi
 
+# Set the fork URL
+FORK_URL="https://github.com/instant-bqml/crmint.git"
+
 # Downloads the source code.
 if [ ! -d $HOME/crmint ]; then
   git clone https://github.com/instant-bqml/crmint.git $HOME/crmint
@@ -43,12 +46,10 @@ if [ ! -d $HOME/crmint ]; then
 fi
 cd $HOME/crmint
 
-# Ensures the correct fork.
-git remote add upstream https://github.com/instant-bqml/crmint.git
-git fetch upstream
-git checkout -B $TARGET_BRANCH upstream/$TARGET_BRANCH
-
-# Updates the targeted branch.
+# Switch to the desired fork and update the targeted branch
+git remote set-url origin $FORK_URL 
+git fetch --all --quiet
+git checkout $TARGET_BRANCH
 git pull --quiet --rebase
 
 # Installs the command-line.
