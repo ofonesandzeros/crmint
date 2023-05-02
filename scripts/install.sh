@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2018 Google Inc
+# Copyright 2023 Google Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,9 +36,6 @@ if [[ ! -z "$RUN_COMMAND" ]]; then
   fi
 fi
 
-# Set the fork URL
-FORK_URL="https://github.com/instant-bqml/crmint.git"
-
 # Downloads the source code.
 if [ ! -d $HOME/crmint ]; then
   git clone https://github.com/instant-bqml/crmint.git $HOME/crmint
@@ -46,10 +43,12 @@ if [ ! -d $HOME/crmint ]; then
 fi
 cd $HOME/crmint
 
-# Switch to the desired fork and update the targeted branch
-git remote set-url origin $FORK_URL 
-git fetch --all --quiet
-git checkout $TARGET_BRANCH
+# Ensures the correct fork.
+git remote add upstream https://github.com/instant-bqml/crmint.git
+git fetch upstream
+git checkout -B $TARGET_BRANCH upstream/$TARGET_BRANCH
+
+# Updates the targeted branch.
 git pull --quiet --rebase
 
 # Installs the command-line.
