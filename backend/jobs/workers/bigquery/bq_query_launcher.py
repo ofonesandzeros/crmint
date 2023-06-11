@@ -12,11 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Legacy workers running SQL queries.
-
-These legacy workers will log a warning message inviting the CRMint end user to
-update their jobs with the new `bq_script_executor.BQScriptExecutor` worker.
-"""
+"""Legacy workers running SQL queries."""
 
 from google.cloud import bigquery
 
@@ -24,10 +20,7 @@ from jobs.workers.bigquery import bq_script_executor
 
 
 class BQQueryLauncher(bq_script_executor.BQScriptExecutor):
-  """Worker to run a SQL query and store its results in a table.
-
-  *Deprecated since CRMint 2.0:* Switch to the new `BQScriptExecutor` worker.
-  """
+  """Worker to run a SQL query and store its results in a table."""
 
   PARAMS = [
       ('query', 'sql', True, '', 'SQL query'),
@@ -39,8 +32,6 @@ class BQQueryLauncher(bq_script_executor.BQScriptExecutor):
   ]
 
   def _execute(self) -> None:
-    self.log_warn('Deprepcated: BQQueryLauncher has been deprecated, please '
-                  'upgrade to the new BQScriptExecutor worker.')
     if self._params['overwrite']:
       write_disposition = bigquery.WriteDisposition.WRITE_TRUNCATE
     else:
