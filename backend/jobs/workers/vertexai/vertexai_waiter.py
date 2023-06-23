@@ -29,8 +29,10 @@ class VertexAIWaiter(vertexai_worker.VertexAIWorker):
     location = self._get_location_from_pipeline_name(pipeline_name)
     client = self._get_vertexai_pipeline_client(location)
     pipeline = self._get_training_pipeline(client, pipeline_name)
-    if pipeline.state == ps.PipelineState.PIPELINE_STATE_FAILED:
-      raise worker.WorkerException(f'Training pipeline {pipeline.name} failed.')
+    if pipeline.state in [
+      ps.PipelineState.PIPELINE_STATE_FAILED,
+      ps.PipelineState.PIPELINE_STATE_CANCELLED]:
+      raise worker.WorkerException(f'Training pipeline {pipeline.name} cancelled or failed.')
     elif pipeline.state != ps.PipelineState.PIPELINE_STATE_SUCCEEDED:
       self._enqueue('VertexAIWaiter', {
           'id': self._params['id'],
@@ -44,8 +46,10 @@ class VertexAIWaiter(vertexai_worker.VertexAIWorker):
     location = self._get_location_from_job_name(job_name)
     client = self._get_vertexai_job_client(location)
     job = self._get_batch_prediction_job(client, job_name)
-    if job.state == js.JobState.JOB_STATE_FAILED:
-      raise worker.WorkerException(f'Job {job.name} failed.')
+    if job.state in [
+      js.JobState.JOB_STATE_FAILED,
+      js.JobState.JOB_STATE_CANCELLED]:
+      raise worker.WorkerException(f'Job {job.name} cancelled or failed.')
     elif job.state != js.JobState.JOB_STATE_SUCCEEDED:
       self._enqueue('VertexAIWaiter', {
           'id': self._params['id'],
