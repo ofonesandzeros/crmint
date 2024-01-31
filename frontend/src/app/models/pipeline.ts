@@ -61,21 +61,25 @@ export class Pipeline {
   run_on_schedule_next_date(showText = false) {
     let text = showText ? 'Run on schedule' : '';
     if (this.run_on_schedule) {
-      const dates = [];
-
+      let nextDate = null;
+  
       this.schedules.forEach((schedule) => {
-        let interval;
         try {
-          interval = parser.parseExpression(schedule.cron, { utc: true });
+          const interval = parser.parseExpression(schedule.cron, { utc: true });
+          const scheduleNextDate = interval.next().toDate();
+          if (!nextDate || scheduleNextDate < nextDate) {
+            nextDate = scheduleNextDate;
+          }
         } catch (err) {
-          console.log('Failed to parse cron:', err);
+          console.error(`Invalid cron in schedule ${schedule.id}:`, schedule.cron);
         }
-        dates.push(interval.next().toDate());
       });
-      if (dates.length) {
-        const nextDate = new Date(Math.min.apply(null, dates));
+  
+      if (nextDate) {
         const nextDateString = moment(nextDate).calendar();
         text += ' ' + nextDateString.charAt(0).toLowerCase() + nextDateString.slice(1);
+      } else {
+        text += ' no valid schedules';
       }
     }
     return text;
