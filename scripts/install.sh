@@ -56,19 +56,17 @@ function clone_and_checkout_repository() {
     if [ "$CURRENT_REPO_URL" != "$TARGET_REPO_URL" ]; then
       echo "Switching remote URL from $CURRENT_REPO_URL to $TARGET_REPO_URL"
       git remote set-url origin "$TARGET_REPO_URL"
+      git fetch --all --quiet
+      git reset --hard origin/$TARGET_BRANCH
+      git checkout $TARGET_BRANCH
+      git pull --quiet --rebase
     else
       echo "Remote URL is already set to $TARGET_REPO_URL"
+      git fetch --all --quiet
+      git checkout $TARGET_BRANCH
+      git reset --hard origin/$TARGET_BRANCH
+      git pull --quiet --rebase
     fi
-
-    # Check for unstaged changes and stash them if any
-    if [[ `git status --porcelain` ]]; then
-      echo "Unstaged changes detected. Stashing changes before pulling..."
-      git stash --include-untracked
-    fi
-
-    git fetch --all --quiet
-    git checkout $TARGET_BRANCH
-    git pull --quiet --rebase
   else
     git clone "$TARGET_REPO_URL" "$CLONE_DIR"
     echo "Cloned $TARGET_REPO_NAME repository to your home directory: $HOME."
