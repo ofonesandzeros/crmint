@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#!/bin/bash
 set -e
 
 function parse_command_line_arguments() {
@@ -43,18 +44,37 @@ function parse_command_line_arguments() {
 }
 
 function clone_and_checkout_repository() {
-  FORK_URL="https://github.com/instant-bqml/crmint.git"
+  TARGET_REPO_URL="https://github.com/instant-bqml/crmint.git"
+  TARGET_REPO_NAME="crmint"
+  CLONE_DIR="$HOME/$TARGET_REPO_NAME"
 
-  if [ ! -d $HOME/crmint ]; then
-    git clone $FORK_URL $HOME/crmint
-    echo "Cloned crmint repository to your home directory: $HOME."
+  if [ -d "$CLONE_DIR" ]; then
+    echo "Found existing directory for $TARGET_REPO_NAME"
+    cd "$CLONE_DIR"
+
+    CURRENT_REPO_URL=$(git config --get remote.origin.url)
+    if [ "$CURRENT_REPO_URL" != "$TARGET_REPO_URL" ]; then
+      echo "Switching remote URL from $CURRENT_REPO_URL to $TARGET_REPO_URL"
+      git remote set-url origin "$TARGET_REPO_URL"
+    else
+      echo "Remote URL is already set to $TARGET_REPO_URL"
+    fi
+
+    # Check for unstaged changes and stash them if any
+    if [[ `git status --porcelain` ]]; then
+      echo "Unstaged changes detected. Stashing changes before pulling..."
+      git stash --include-untracked
+    fi
+
+    git fetch --all --quiet
+    git checkout $TARGET_BRANCH
+    git pull --quiet --rebase
+  else
+    git clone "$TARGET_REPO_URL" "$CLONE_DIR"
+    echo "Cloned $TARGET_REPO_NAME repository to your home directory: $HOME."
+    cd "$CLONE_DIR"
+    git checkout $TARGET_BRANCH
   fi
-
-  cd $HOME/crmint
-  git remote set-url origin $FORK_URL
-  git fetch --all --quiet
-  git checkout $TARGET_BRANCH
-  git pull --quiet --rebase
 }
 
 function install_command_line() {
