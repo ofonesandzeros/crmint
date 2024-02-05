@@ -58,7 +58,7 @@ function clone_and_checkout_repository() {
     fi
     git fetch --all --quiet
     git reset --hard origin/$TARGET_BRANCH
-    git clean -fd || echo "Some files could not be removed due to permission issues. Please review and remove them manually if necessary."
+    sudo git clean -fdx || echo "Warning: Some files could not be removed. You may need to manually remove files with elevated permissions."
     git checkout $TARGET_BRANCH
   else
     git clone "$TARGET_REPO_URL" "$CLONE_DIR"
