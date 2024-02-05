@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/bin/bash
 set -e
 
 function parse_command_line_arguments() {
@@ -59,7 +58,7 @@ function clone_and_checkout_repository() {
     fi
     git fetch --all --quiet
     git reset --hard origin/$TARGET_BRANCH
-    git clean -fd
+    git clean -fd || echo "Some files could not be removed due to permission issues. Please review and remove them manually if necessary."
     git checkout $TARGET_BRANCH
   else
     git clone "$TARGET_REPO_URL" "$CLONE_DIR"
