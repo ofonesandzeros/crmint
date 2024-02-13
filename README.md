@@ -3,10 +3,7 @@
 **Make reliable data integration and data processing with Google easy for
 advertisers.**
 
-* [User Documentation](https://google.github.io/crmint)
-* [Deploy Guide](https://github.com/google/crmint/wiki/Deploy-CRMint-on-Google-Cloud-Platform)
-* [Contributor's Guide](https://github.com/google/crmint/wiki/Contributor's-Guide)
-* [Wiki](https://github.com/google/crmint/wiki)
+[![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/editor?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Finstant-bqml%2Fcrmint&cloudshell_git_branch=master&cloudshell_tutorial=docs%2Fdocs%2Fquickstart%2Fsimple.md&show=terminal)
 
 
 | Status | Coverage | Branch | Description |
