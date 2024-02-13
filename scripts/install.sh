@@ -16,6 +16,25 @@
 
 set -e
 
+function ensure_gcloud_project_set() {
+  CURRENT_PROJECT=$(gcloud config get-value project)
+
+  if [ -z "$CURRENT_PROJECT" ]; then
+    echo "No Google Cloud project is currently set."
+    read -p "Please enter your Google Cloud project ID to continue: " PROJECT_ID
+    if [ -z "$PROJECT_ID" ]; then
+      echo "No project ID provided, exiting."
+      exit 1
+    else
+      gcloud config set project "$PROJECT_ID"
+      echo "Project set to $PROJECT_ID"
+    fi
+  else
+    echo "Current Google Cloud project is set to $CURRENT_PROJECT"
+  fi
+}
+
+
 function parse_command_line_arguments() {
   TARGET_BRANCH=$1
   RUN_COMMAND=$2
@@ -111,6 +130,7 @@ function run_command_line() {
 
 # Main script execution
 parse_command_line_arguments "$@"
+ensure_gcloud_project_set
 clone_and_checkout_repository
 install_command_line
 add_wrapper_function_to_bashrc
