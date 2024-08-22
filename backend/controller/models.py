@@ -652,7 +652,7 @@ class Job(extensions.db.Model):
               delay: int = 0) -> Union[TaskEnqueued, None]:
     if self.status != Job.STATUS.RUNNING:
       return None
-    name = str(uuid.uuid4())
+    name = f"task_{self.pipeline_id}_{str(uuid.uuid4())}"
     general_settings = {gs.name: gs.value for gs in GeneralSetting.all()}
     task_inst = task.Task(
         name,
@@ -710,7 +710,9 @@ class Job(extensions.db.Model):
             pipeline_id=self.pipeline_id,
             job_id=self.id)
         # Clear the task_name from the enqueued_tasks table
-        TaskEnqueued.where(task_name=task_name).delete(synchronize_session=False)
+        task_namespace = self._get_task_namespace()
+        TaskEnqueued.where(task_namespace=task_namespace,
+                           task_name=task_name).delete(synchronize_session=False)
         crmint_logging.log_message(
             f'Task {task_name} cleared from enqueued_tasks table.',
             log_level='INFO',
@@ -731,6 +733,12 @@ class Job(extensions.db.Model):
     # Deletes matched tasks
     for task_inst in found_tasks:
       task_inst.delete()
+      crmint_logging.log_message(
+        f'Task {task_inst.task_name} deleted from enqueued_tasks table.',
+        log_level='DEBUG',
+        worker_class=self.worker_class,
+        pipeline_id=self.pipeline_id,
+        job_id=self.id)
     num_running_tasks = self._enqueued_task_count()
     crmint_logging.log_message(
         f'Running tasks: {num_running_tasks}',
