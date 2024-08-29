@@ -34,10 +34,6 @@ class ResultResource(Resource):
       res = result.Result.from_request(flask.request)
     except message.BadRequestError as e:
       return e.message, e.code
-    task_exists = models.TaskEnqueued.where(
-      task_name=res.task_name).first()
-    if not task_exists:
-      return 'OK', 200
     if res.success:
       job = models.Job.find(res.job_id)
       for worker_enqueue_agrs in res.workers_to_enqueue:
