@@ -120,9 +120,7 @@ export class PipelineViewComponent implements OnInit, OnDestroy {
       this.pipelinesService.getPipeline(this.pipeline.id)
         .then(pipeline => {
           this.pipeline = plainToClass(Pipeline, pipeline as Pipeline);
-          if (this.pipeline.is_active()) {
-            this.loadJobs(this.pipeline.id);
-          }
+          this.loadJobs(this.pipeline.id);
         })
         .catch(error => {
           console.error('Error fetching pipeline status:', error);
