@@ -115,35 +115,63 @@ export class PipelineViewComponent implements OnInit, OnDestroy {
   }
 
   startAutorefresh() {
-    const refreshInterval = 10000; // Refresh every 10 seconds
+    const minRefreshInterval = 10000; // Minimum refresh interval: 10 seconds
+    const maxRefreshInterval = 60000; // Maximum refresh interval: 1 minute
+    let currentRefreshInterval = minRefreshInterval;
+
     const refresh = () => {
-      this.pipelinesService.getPipeline(this.pipeline.id)
-        .then(pipeline => {
-          this.pipeline = plainToClass(Pipeline, pipeline as Pipeline);
-          this.loadJobs(this.pipeline.id);
-        })
-        .catch(error => {
-          console.error('Error fetching pipeline status:', error);
-        });
+      Promise.all([
+        this.pipelinesService.getPipeline(this.pipeline.id),
+        this.jobsService.getJobsByPipeline(this.pipeline.id)
+      ])
+      .then(([pipelineData, jobsData]) => {
+        const newPipeline = plainToClass(Pipeline, pipelineData as Pipeline);
+        const newJobs = plainToClass(Job, jobsData as Job[]);
+
+        let hasChanges = false;
+
+        // Check for changes in pipeline
+        if (JSON.stringify(this.pipeline) !== JSON.stringify(newPipeline)) {
+          this.pipeline = newPipeline;
+          hasChanges = true;
+        }
+
+        // Check for changes in jobs
+        if (JSON.stringify(this.jobs) !== JSON.stringify(newJobs)) {
+          this.jobs = newJobs;
+          hasChanges = true;
+        }
+
+        if (hasChanges) {
+          // Pipeline or jobs have changed, reset to minimum interval
+          this.updateGraph();
+          currentRefreshInterval = minRefreshInterval;
+        } else {
+          // No changes, increase interval
+          currentRefreshInterval = Math.min(currentRefreshInterval * 1.5, maxRefreshInterval);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching pipeline or job status:', error);
+      })
+      .finally(() => {
+        // Schedule next refresh
+        this.refreshIntervalId = setTimeout(refresh, currentRefreshInterval);
+      });
     };
 
-    // Clear any existing interval to prevent multiple intervals
+    // Clear any existing timeout
     if (this.refreshIntervalId) {
-      clearInterval(this.refreshIntervalId);
+      clearTimeout(this.refreshIntervalId);
     }
 
     // Initial call to refresh
     refresh();
-
-    // Set interval to refresh periodically
-    this.refreshIntervalId = setInterval(() => {
-      refresh();
-    }, refreshInterval);
   }
 
   ngOnDestroy() {
     if (this.refreshIntervalId) {
-      clearInterval(this.refreshIntervalId);
+      clearTimeout(this.refreshIntervalId);
     }
   }
 
@@ -183,7 +211,7 @@ export class PipelineViewComponent implements OnInit, OnDestroy {
 
   updateGraph() {
     if (this.indexTabActivated === 0 && this.graph) {
-      this.graph.redraw();
+      this.graph.redraw(this.jobs);
     }
   }
 
