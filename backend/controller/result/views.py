@@ -45,6 +45,7 @@ class ResultResource(Resource):
         pipeline_id='N/A',
         job_id=res.job_id
       )
+      job.task_failed(res.task_name)
       return 'Job not found', 200
     # Check if the task is still enqueued
     existing_tasks = job._get_tasks_with_name(res.task_name)
@@ -56,11 +57,16 @@ class ResultResource(Resource):
         pipeline_id=job.pipeline_id,
         job_id=job.id
       )
-      # Acknowledge receipt without further processing
+      if res.success:
+        for worker_enqueue_args in res.workers_to_enqueue:
+          job.enqueue(*worker_enqueue_args)
+        job.task_succeeded(res.task_name)
+      else:
+        job.task_failed(res.task_name)
       return 'Task already processed or unknown.', 200
     if res.success:
       for worker_enqueue_args in res.workers_to_enqueue:
-          job.enqueue(*worker_enqueue_args)
+        job.enqueue(*worker_enqueue_args)
       job.task_succeeded(res.task_name)
     else:
       job.task_failed(res.task_name)
