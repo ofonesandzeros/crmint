@@ -798,12 +798,15 @@ class Job(extensions.db.Model):
     found_tasks = self._get_tasks_with_name(task_name)
     if not found_tasks:
       crmint_logging.log_message(
-          f'Unregistered task for name: {task_name}',
-          log_level='WARNING',
-          worker_class=self.worker_class,
-          pipeline_id=self.pipeline_id,
-          job_id=self.id)
-      return self._enqueued_task_count()
+        f'Unregistered task for name: {task_name}. Restarting job.',
+        log_level='WARNING',
+        worker_class=self.worker_class,
+        pipeline_id=self.pipeline_id,
+        job_id=self.id)
+        
+      # Reset job status to WAITING and start it again
+      self.set_status(Job.STATUS.WAITING)
+      return self.start()
 
     # Deletes matched tasks
     for task_inst in found_tasks:
