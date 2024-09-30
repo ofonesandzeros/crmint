@@ -16,6 +16,15 @@
 
 set -e
 
+TRACKING_URL="https://instant-bqml.appspot.com/track_deployment"
+USER_AGENT="cloud-solutions/crmint-ibqml-deploy-v2"
+
+function send_tracking_request() {
+  curl -X POST \
+       -H "User-Agent: $USER_AGENT" \
+       $TRACKING_URL
+}
+
 function ensure_gcloud_auth() {
   # Get the list of accounts and select the first one if multiple accounts exist
   ACTIVE_ACCOUNT=$(gcloud auth list --format="value(account)" | head -n 1)
@@ -146,6 +155,7 @@ function run_command_line() {
 }
 
 # Main script execution
+send_tracking_request
 parse_command_line_arguments "$@"
 ensure_gcloud_project_set
 ensure_gcloud_auth
