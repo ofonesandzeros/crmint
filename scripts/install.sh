@@ -16,7 +16,7 @@
 
 set -e
 
-TRACKING_URL="https://instant-bqml.appspot.com/track_deployment"
+TRACKING_URL="https://instant-bqml.appspot.com/deployment_started"
 USER_AGENT="cloud-solutions/crmint-ibqml-deploy-v2"
 
 function send_tracking_request() {
