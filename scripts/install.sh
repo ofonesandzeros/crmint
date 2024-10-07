@@ -16,6 +16,10 @@
 
 set -e
 
+mkdir -p ~/.cloudshell
+touch ~/.cloudshell/no-apt-get-warning
+
+# Function to ensure gcloud authentication
 function ensure_gcloud_auth() {
   # Get the list of accounts and select the first one if multiple accounts exist
   ACTIVE_ACCOUNT=$(gcloud auth list --format="value(account)" | head -n 1)
@@ -33,6 +37,7 @@ function ensure_gcloud_auth() {
   fi
 }
 
+# Function to ensure gcloud project is set
 function ensure_gcloud_project_set() {
   CURRENT_PROJECT=$(gcloud config get-value project)
 
@@ -51,7 +56,7 @@ function ensure_gcloud_project_set() {
   fi
 }
 
-
+# Function to parse command line arguments
 function parse_command_line_arguments() {
   TARGET_BRANCH=$1
   RUN_COMMAND=$2
@@ -78,6 +83,7 @@ function parse_command_line_arguments() {
   fi
 }
 
+# Function to clone and checkout repository
 function clone_and_checkout_repository() {
   TARGET_REPO_URL="https://github.com/instant-bqml/crmint.git"
   TARGET_REPO_NAME="crmint"
@@ -97,29 +103,53 @@ function clone_and_checkout_repository() {
     sudo git clean -fdx || echo "Warning: Some files could not be removed. You may need to manually remove files with elevated permissions."
     git checkout $TARGET_BRANCH
   else
-    git clone "$TARGET_REPO_URL" "$CLONE_DIR"
+    git clone "$TARGET_REPO_URL" "$CLONE_DIR" --quiet
     echo "Cloned $TARGET_REPO_NAME repository to your home directory: $HOME."
     cd "$CLONE_DIR"
-    git checkout $TARGET_BRANCH
+    git checkout $TARGET_BRANCH --quiet
   fi
 }
 
+# Function to install the command line using Python 3.9
 function install_command_line() {
   # Remove existing virtual environment if it exists
   if [ -d .venv ]; then
     rm -rf .venv
   fi
 
-  sudo apt-get install -y python3-venv
-  python3 -m venv .venv
+  # Install Python 3.9 and its venv module
+  echo "Installing Python 3.9 and necessary packages..."
+  sudo apt-get update -qq
+  sudo apt-get install -y -qq software-properties-common
+  sudo add-apt-repository ppa:deadsnakes/ppa -y &> /dev/null
+  sudo apt-get update -qq
+  sudo apt-get install -y -qq python3.9 python3.9-venv python3.9-dev
 
+  # Verify Python 3.9 installation
+  if ! command -v python3.9 &> /dev/null; then
+    echo "Python 3.9 installation failed, exiting."
+    exit 1
+  fi
+  echo "Python 3.9 version: $(python3.9 --version)"
+
+  # Create virtual environment using Python 3.9
+  echo "Creating virtual environment with Python 3.9..."
+  python3.9 -m venv .venv
+
+  # Activate the virtual environment
+  echo "Activating virtual environment..."
   . .venv/bin/activate
-  pip install --upgrade pip setuptools wheel
+
+  # Upgrade pip, setuptools, and wheel
+  echo "Upgrading pip, setuptools, and wheel..."
+  pip install --upgrade pip setuptools wheel &> /dev/null
 
   # Proceed to install the cli package
-  pip install -e cli/
+  echo "Installing CRMint CLI package..."
+  pip install --quiet -e cli/
 }
 
+# Function to add wrapper function to .bashrc
 function add_wrapper_function_to_bashrc() {
   echo -e "\\nAdding a bash function to your $HOME/.bashrc file."
 
@@ -139,6 +169,7 @@ function crmint {
 EOF
 }
 
+# Function to run the specified command
 function run_command_line() {
   if [[ ! -z "$COMMAND" ]]; then
     hash -r
