@@ -18,6 +18,7 @@ from typing import Type, TypeVar
 
 from jobs.workers import commenter
 from jobs.workers import worker
+from jobs.workers.bigquery import bq_ads_data_transfer
 from jobs.workers.bigquery import bq_ml_trainer
 from jobs.workers.bigquery import bq_query_launcher
 from jobs.workers.bigquery import bq_script_executor
@@ -44,6 +45,8 @@ WORKERS_MAPPING = {
     # 'AutoMLImporter',
     # 'AutoMLPredictor',
     # 'AutoMLTrainer',
+    'BQGoogleAdsTransfer':
+        bq_ads_data_transfer.BQGoogleAdsTransfer,
     'BQMLTrainer':
         bq_ml_trainer.BQMLTrainer,
     'BQQueryLauncher':

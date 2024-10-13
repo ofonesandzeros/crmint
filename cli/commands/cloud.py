@@ -649,6 +649,7 @@ def activate_services(stage, debug=False):
          f' analyticsreporting.googleapis.com'
          f' appengine.googleapis.com'
          f' bigquery-json.googleapis.com'
+         f' bigquerydatatransfer.googleapis.com'
          f' cloudapis.googleapis.com'
          f' logging.googleapis.com'
          f' pubsub.googleapis.com'
