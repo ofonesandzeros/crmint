@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 from jobs.workers.bigquery import bq_worker
 
 
-class BQGoogleAdsTransferWorker(bq_worker.BQWorker):
+class BQGoogleAdsTransfer(bq_worker.BQWorker):
     """Worker to create Google Ads BigQuery Data Transfer Service with Backfill."""
 
     PARAMS = [
