@@ -293,6 +293,47 @@ def check_billing_enabled(stage: shared.StageContext,
   return out.strip().lower() == 'true'
 
 
+def check_sql_instance_policy_restrictions(stage: shared.StageContext,
+                                           debug: bool = False) -> bool:
+  """Returns True if no project-level or inherited policies restrict the use 
+  of public IPs for Cloud SQL.
+
+  Args:
+    stage: Stage context.
+    debug: Enables the debug mode on system calls.
+  """
+  project_id = stage.project_id
+  policies_to_check = [
+      'constraints/sql.restrictAuthorizedNetworks',
+      'constraints/sql.restrictPublicIp',
+  ]
+
+  for idx, policy in enumerate(policies_to_check):
+    cmd = textwrap.dedent(f"""\
+        {GCLOUD} resource-manager org-policies describe {policy} \\
+            --project={project_id} \\
+            --effective \\
+            --format="json"
+    """)
+    _, out, _ = shared.execute_command(
+        f'Checking Cloud SQL policy ({idx + 1}/{len(policies_to_check)})',
+        cmd,
+        debug=debug,
+        debug_uses_std_out=False)
+
+    try:
+      policy_data = json.loads(out)
+      enforced = policy_data.get("booleanPolicy", {}).get("enforced", False)
+
+      if enforced:
+        return False, (f'Policy "{policy}" is enforced. Cloud SQL instances '
+                       'with public IPs are restricted.')
+    except json.JSONDecodeError:
+      return False, (f'Failed to parse policy {policy}. Check organization-'
+                     'level policies manually.')
+  return True, ''
+
+
 def _check_if_appengine_instance_exists(stage, debug=False):
   project_id = stage.project_id
   cmd = (f'{GCLOUD} app describe --verbosity critical --project={project_id}'
@@ -1186,6 +1227,11 @@ def checklist(stage_path: Union[None, str], debug: bool) -> None:
         Please enable billing before deploying CRMint:
         https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project
         """), _INDENT_PREFIX), fg='red', bold=True)
+    sys.exit(1)
+
+  success, message = check_sql_instance_policy_restrictions(stage, debug=debug)
+  if not success:
+    click.secho(textwrap.indent(message, _INDENT_PREFIX), fg='red', bold=True)
     sys.exit(1)
 
   click.echo(click.style('Done.', fg='magenta', bold=True))
