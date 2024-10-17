@@ -55,6 +55,14 @@ class StarterResource(Resource):
         tracker = insight.GAProvider()
         tracker.track_event(category='pipelines', action='pubsub_run')
 
+  def get(self):
+    """Handle warmup requests."""
+    if request.path == '/_ah/warmup':
+        # Perform any necessary initialization
+        return '', 200
+    # Handle other GET requests if needed
+    return 'Method not allowed', 405
+
   def post(self):
     try:
       data = message.extract_data(request)
@@ -73,4 +81,4 @@ class StarterResource(Resource):
     return 'OK', 200
 
 
-api.add_resource(StarterResource, '/push/start-pipeline')
+api.add_resource(StarterResource, '/push/start-pipeline', '/_ah/warmup')
