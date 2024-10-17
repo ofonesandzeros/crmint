@@ -41,6 +41,7 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
   app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
       'DATABASE_URI',
       'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
+  app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
   if config:
     app.config.update(**config)
   register_extensions(app)
