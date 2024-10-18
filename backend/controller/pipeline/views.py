@@ -152,19 +152,13 @@ class PipelineList(Resource):
       tracker.track_event(category='pipelines', action='list')
 
       query = models.Pipeline.query.options(
-        orm.load_only(models.Pipeline.id, models.Pipeline.name, models.Pipeline.status, models.Pipeline.updated_at, models.Pipeline.run_on_schedule),
-        orm.joinedload(models.Pipeline.schedules),  # Load schedules
-        orm.joinedload(models.Pipeline.params)  # Load params
-      )
-
-      # Count the total number of pipelines
+          orm.defaultload(models.Pipeline.jobs).defaultload(
+              models.Job.params).defer(models.Param.value),
+          orm.defaultload(models.Pipeline.jobs).defaultload(
+              models.Job.params).defer(models.Param.runtime_value)
+      ).order_by(models.Pipeline.updated_at.desc())
       total_pipelines = query.count()
-
-      # Fetch the pipelines for the current page, sorted by last_activity (updated_at) in descending order
-      pipelines = query.order_by(models.Pipeline.updated_at.desc()) \
-                       .offset((page - 1) * items_per_page) \
-                       .limit(items_per_page) \
-                       .all()
+      pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
 
       print(f"Total pipelines found: {total_pipelines}")
       print(f"Pipelines on page {page}: {[p.id for p in pipelines]}")
