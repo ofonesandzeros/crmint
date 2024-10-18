@@ -164,6 +164,9 @@ class PipelineList(Resource):
       for pipeline in pipelines:
         pipeline.has_jobs = bool(pipeline.jobs)
 
+      print(f"Total pipelines found: {total_pipelines}")
+      print(f"Pipelines on page {page}: {[p.id for p in pipelines]}")
+
       return {
         'pipelines': pipelines,
         'total': total_pipelines,
