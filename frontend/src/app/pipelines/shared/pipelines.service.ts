@@ -26,7 +26,7 @@ export class PipelinesService extends ApiService {
     this.removeContentTypeHeader();
     const params = new HttpParams()
       .set('page', page.toString())
-      .set('items_per_page', itemsPerPage.toString());
+      .set('itemsPerPage', itemsPerPage.toString());
 
     return this.http.get(this.url, { ...this.options, params })
       .toPromise()

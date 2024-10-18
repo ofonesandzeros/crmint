@@ -20,15 +20,15 @@ import { Schedule } from './schedule';
 import { Param } from './param';
 
 export class Pipeline {
-  id: number = 0;
-  name: string = '';
-  emails_for_notifications: string = '';
-  status: string = '';
-  updated_at: string = '';
-  run_on_schedule: boolean = false;
-  sid: string = '';
-  has_jobs: boolean = false;
-  is_manual_run: boolean = false;
+  id: number;
+  name: string;
+  emails_for_notifications: string | null;
+  status: string;
+  updated_at: string;
+  run_on_schedule: boolean;
+  has_jobs: boolean;
+  schedules: Schedule[];
+  params: Param[];
 
   @Type(() => Schedule)
   schedules: Schedule[] = [];

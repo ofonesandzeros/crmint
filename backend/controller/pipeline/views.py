@@ -76,6 +76,12 @@ pipeline_fields = {
     'message': fields.String,
     'has_jobs': fields.Boolean,
 }
+paginated_pipelines_fields = {
+    'pipelines': fields.List(fields.Nested(pipeline_fields)),
+    'total': fields.Integer,
+    'page': fields.Integer,
+    'itemsPerPage': fields.Integer
+}
 
 
 def abort_if_pipeline_doesnt_exist(pipeline, pipeline_id):
@@ -132,7 +138,7 @@ class PipelineSingle(Resource):
 class PipelineList(Resource):
   """Shows a list of all pipelines, and lets you POST to add new pipelines."""
 
-  @marshal_with(pipeline_fields)
+  @marshal_with(paginated_pipelines_fields)
   def get(self):
     try:
       parser = reqparse.RequestParser()
