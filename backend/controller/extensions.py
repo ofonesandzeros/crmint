@@ -39,6 +39,9 @@ db = SQLAlchemy(
     engine_options={
         'pool_pre_ping': True,
         'pool_recycle': 300,  # Recycle each connection after 5 minutes.
+        'pool_size': 5,       # Maintain 5 active connections in the pool
+        'max_overflow': 10,   # Allow up to 10 extra connections beyond the pool size
+        'pool_timeout': 20,   # Wait up to 20 seconds for a connection before raising an error
     }
 )
 db.Model.set_session(db.session)  # Binds the scoped session to our models.
