@@ -28,6 +28,10 @@ import { AppComponent } from 'app/app.component';
 export class PipelinesComponent implements OnInit {
 
   pipelines: Pipeline[] = [];
+  displayedPipelines: Pipeline[] = [];
+  currentPage: number = 1;
+  itemsPerPage: number = 10; // Number of pipelines per page
+  totalPages: number = 0;
   filesToUpload: Array<File> = [];
   state = 'loading'; // State has one of values: loading, loaded, error
 
@@ -37,13 +41,40 @@ export class PipelinesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.pipelinesService.getPipelines()
-        .then(data => {
-          this.pipelines = plainToClass(Pipeline, data as Pipeline[]);
-          this.state = 'loaded';
-        }).catch(err => {
-          this.state = 'error';
-        });
+    this.loadPipelines(this.currentPage, this.itemsPerPage);
+  }
+
+  loadPipelines(page: number, itemsPerPage: number) {
+    this.pipelinesService.getPipelines(page, itemsPerPage)
+      .then(data => {
+        this.pipelines = plainToClass(Pipeline, data as Pipeline[]);
+        this.updateDisplayedPipelines();
+        this.sortPipelinesByLastActivity();
+        this.state = 'loaded';
+      }).catch(err => {
+        this.state = 'error';
+      });
+  }
+
+  updateDisplayedPipelines() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.displayedPipelines = this.pipelines.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updateDisplayedPipelines();
+    }
+  }
+
+  sortPipelinesByLastActivity() {
+    this.pipelines.sort((a, b) => {
+      const dateA = new Date(a.updated_at).getTime();
+      const dateB = new Date(b.updated_at).getTime();
+      return dateB - dateA; // Sort descending by last activity
+    });
   }
 
   deletePipeline(pipeline) {

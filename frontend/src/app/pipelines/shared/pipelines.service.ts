@@ -21,8 +21,13 @@ export class PipelinesService extends ApiService {
 
   private url = `${this.getHost()}/pipelines`;
 
-  getPipelines() {
+  getPipelines(page: number = 1, itemsPerPage: number = 10) {
     this.removeContentTypeHeader();
+    const params = {
+      page: page.toString(),
+      itemsPerPage: itemsPerPage.toString()
+    };
+    this.options.params = params;
     return this.http.get(this.url, this.options)
                     .toPromise()
                     .catch(this.handleError);

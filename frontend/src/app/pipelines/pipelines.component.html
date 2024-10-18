@@ -28,7 +28,7 @@
         </div>
       </mat-card-title>
 
-      <div *ngIf="pipelines.length > 0; else nopipelines">
+      <div *ngIf="displayedPipelines.length > 0; else nopipelines">
         <div class="crmi-card-list">
           <div class="crmi-card-list-header">
             <div class="crmi-card-list-item">
@@ -38,7 +38,7 @@
               <div class="crmi-card-list-item-col crmi-card-list-item-col-1">Actions</div>
             </div>
           </div>
-          <div *ngFor="let pipeline of pipelines" class="crmi-card-list-item">
+          <div *ngFor="let pipeline of displayedPipelines" class="crmi-card-list-item">
             <div class="crmi-card-list-item-col">
               <a class="crmi-card-list-item-name" [routerLink]="['/pipelines', pipeline.id]">{{pipeline.name}}</a>
               <div class="crmi-pipelines-item-alarm">
@@ -64,6 +64,11 @@
               </button>
             </div>
           </div>
+        </div>
+        <div class="pagination-controls">
+          <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+          <span>Page {{currentPage}} of {{totalPages}}</span>
+          <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
         </div>
       </div>
       <ng-template #nopipelines>
