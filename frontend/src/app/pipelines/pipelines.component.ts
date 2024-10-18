@@ -74,13 +74,6 @@ export class PipelinesComponent implements OnInit {
     this.displayedPipelines = this.pipelines.slice(startIndex, endIndex);
   }
 
-  goToPage(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updateDisplayedPipelines();
-    }
-  }
-
   sortPipelinesByLastActivity() {
     this.pipelines.sort((a, b) => {
       const dateA = new Date(a.updated_at).getTime();
