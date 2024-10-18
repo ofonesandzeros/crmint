@@ -16,7 +16,7 @@ import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { ApiService } from 'app/api.service';
-import { PaginatedPipelines } from 'app/models/paginated-pipelines'; // Import the interface
+import { PaginatedPipelines } from 'app/models/paginated-pipelines';
 
 @Injectable()
 export class PipelinesService extends ApiService {
@@ -28,7 +28,6 @@ export class PipelinesService extends ApiService {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('itemsPerPage', itemsPerPage.toString());
-
     return this.http.get<PaginatedPipelines>(this.url, { ...this.options, params })
       .toPromise()
       .catch(this.handleError);

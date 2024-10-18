@@ -27,7 +27,7 @@ from flask_restful import Api
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
-from flask_restful import Resource, marshal
+from flask_restful import Resource
 from google.cloud import logging
 import jinja2
 from sqlalchemy import orm
@@ -159,10 +159,6 @@ class PipelineList(Resource):
       ).order_by(models.Pipeline.updated_at.desc())
       total_pipelines = query.count()
       pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
-
-      print(f"Total pipelines found: {total_pipelines}")
-      print(f"Pipelines on page {page}: {[p.id for p in pipelines]}")
-
       return {
         'pipelines': pipelines,
         'total': total_pipelines,
@@ -170,9 +166,7 @@ class PipelineList(Resource):
         'itemsPerPage': items_per_page
       }
     except Exception as e:
-      # Log the error
       print(f"Error in PipelineList.get: {str(e)}")
-      # Return a more informative error response
       return {'error': 'An unexpected error occurred'}, 500
 
   @marshal_with(pipeline_fields)
