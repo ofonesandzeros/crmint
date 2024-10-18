@@ -27,30 +27,30 @@ from controller import starter
 from controller import views
 
 def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
-    """An application factory.
+  """An application factory.
 
-    Args:
-        config: Dictionary of config flags to update the app with.
+  Args:
+    config: Dictionary of config flags to update the app with.
 
-    Returns:
-        The configured Flask application.
-    """
-    app = Flask(__name__)
-    
-    # Set up database connection pooling
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-      'DATABASE_URI',
-      'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
-    app.config['SQLALCHEMY_ECHO'] = True
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+  Returns:
+    The configured Flask application.
+  """
+  app = Flask(__name__)
 
-    if config:
-      app.config.update(**config)
+  # Set up database connection pooling
+  app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URI',
+    'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
+  app.config['SQLALCHEMY_ECHO'] = True
+  app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    register_extensions(app)
-    register_blueprints(app)
+  if config:
+    app.config.update(**config)
 
-    return app
+  register_extensions(app)
+  register_blueprints(app)
+
+  return app
 
 
 def register_extensions(app):
