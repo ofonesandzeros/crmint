@@ -151,12 +151,10 @@ class PipelineList(Resource):
       tracker = insight.GAProvider()
       tracker.track_event(category='pipelines', action='list')
 
-      query = models.Pipeline.query.with_entities(
-        models.Pipeline.id, 
-        models.Pipeline.name, 
-        models.Pipeline.status, 
-        models.Pipeline.updated_at,  # Assuming this is the last activity field
-        models.Pipeline.run_on_schedule
+      query = models.Pipeline.query.options(
+        orm.load_only(models.Pipeline.id, models.Pipeline.name, models.Pipeline.status, models.Pipeline.updated_at, models.Pipeline.run_on_schedule),
+        orm.joinedload(models.Pipeline.schedules),  # Load schedules
+        orm.joinedload(models.Pipeline.params)  # Load params
       )
 
       # Count the total number of pipelines
