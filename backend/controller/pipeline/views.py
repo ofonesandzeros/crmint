@@ -37,6 +37,7 @@ from common import crmint_logging
 from common import insight
 from controller import models
 from controller.cron_utils import is_valid_cron
+from flask import current_app
 
 
 _PROJECT_ID = os.getenv('GOOGLE_CLOUD_PROJECT')
@@ -44,6 +45,8 @@ _LOGS_PAGE_SIZE = 20
 
 blueprint = flask.Blueprint('pipeline', __name__)
 api = Api(blueprint)
+
+cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 parser = reqparse.RequestParser()
 parser.add_argument('name')
@@ -151,14 +154,25 @@ class PipelineList(Resource):
       tracker = insight.GAProvider()
       tracker.track_event(category='pipelines', action='list')
 
-      query = models.Pipeline.query.options(
-          (orm.defaultload(models.Pipeline.jobs).defaultload(
-              models.Job.params).defer(models.Param.value)),
-          (orm.defaultload(models.Pipeline.jobs).defaultload(
-              models.Job.params).defer(models.Param.runtime_value))
-      ).order_by(models.Pipeline.updated_at.desc())
-      total_pipelines = query.count()
-      pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
+      # Access cache from the current app context
+      cache = current_app.extensions['cache']
+
+      # Caching function to avoid repeated queries
+      @cache.cached(timeout=60, key_prefix=f'pipelines_page_{page}_items_{items_per_page}')
+      def get_pipelines(page, items_per_page):
+        query = models.Pipeline.query.options(
+          orm.load_only(models.Pipeline.id, models.Pipeline.name, models.Pipeline.last_activity)
+        )
+        # Sort by last_activity descending
+        total_pipelines = query.count()
+        pipelines = query.order_by(models.Pipeline.last_activity.desc()) \
+                        .offset((page - 1) * items_per_page) \
+                        .limit(items_per_page) \
+                        .all()
+        return pipelines, total_pipelines
+
+      # Fetch pipelines with caching
+      pipelines, total_pipelines = get_pipelines(page, items_per_page)
 
       print(f"Total pipelines found: {total_pipelines}")
       print(f"Pipelines on page {page}: {[p.id for p in pipelines]}")
