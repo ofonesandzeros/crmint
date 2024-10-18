@@ -1,6 +1,7 @@
 google-cloud-logging
 google-cloud-pubsub
 Flask
+Flask-Caching
 CacheControl
 gunicorn
 croniter
