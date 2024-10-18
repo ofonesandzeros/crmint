@@ -47,25 +47,34 @@ export class PipelinesComponent implements OnInit {
   }
 
   loadPipelines(page: number, itemsPerPage: number) {
-    this.pipelinesService.getPipelines(page, itemsPerPage)
-      .then((response: any) => {
+    this.pipelinesService.getPipelines(page, itemsPerPage).then(
+      (response: any) => {
         if (response && response.pipelines) {
-          this.pipelines = plainToClass(Pipeline, response.pipelines as Pipeline[]);
-          this.totalPipelines = response.total;
-          this.currentPage = response.page;
-          this.itemsPerPage = response.itemsPerPage;
+          this.pipelines = response.pipelines.map(pipelineData => {
+            // Create a new Pipeline instance with default values
+            const pipeline = new Pipeline();
+            // Assign values from API response, using default values if null
+            pipeline.id = pipelineData.id || 0;
+            pipeline.name = pipelineData.name || '';
+            pipeline.emails_for_notifications = pipelineData.emails_for_notifications || [];
+            pipeline.status = pipelineData.status || 'unknown';
+            pipeline.updated_at = pipelineData.updated_at || new Date().toISOString();
+            pipeline.run_on_schedule = pipelineData.run_on_schedule || false;
+            pipeline.has_jobs = pipelineData.has_jobs || false;
+            pipeline.schedules = pipelineData.schedules || [];
+            pipeline.params = pipelineData.params || [];
+            return pipeline;
+          });
+          this.totalPipelines = response.total || 0;
           this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
-          this.updateDisplayedPipelines();
-          this.sortPipelinesByLastActivity();
-          this.state = 'loaded';
         } else {
           console.error('Unexpected response structure:', response);
-          this.state = 'error';
         }
-      }).catch(err => {
-        console.error('Error loading pipelines:', err);
-        this.state = 'error';
-      });
+      },
+      error => {
+        console.error('Error loading pipelines:', error);
+      }
+    );
   }
 
   updateDisplayedPipelines() {
