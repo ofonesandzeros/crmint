@@ -17,7 +17,6 @@
 import os
 from typing import Any, Optional
 from flask import Flask, g
-from flask_caching import Cache
 
 # Import extensions module here
 from controller import extensions
@@ -28,8 +27,6 @@ from controller import result
 from controller import stage
 from controller import starter
 from controller import views
-
-cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
     """An application factory.
@@ -78,7 +75,6 @@ def register_extensions(app):
     extensions.cors.init_app(app)
     extensions.db.init_app(app)
     extensions.migrate.init_app(app, extensions.db)
-    cache.init_app(app)
 
 
 def register_blueprints(app):
