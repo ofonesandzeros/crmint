@@ -156,9 +156,7 @@ class PipelineList(Resource):
         models.Pipeline.name, 
         models.Pipeline.status, 
         models.Pipeline.updated_at,  # Assuming this is the last activity field
-        models.Pipeline.run_on_schedule,
-        models.Pipeline.showed_running,
-        models.Pipeline.blocked_managing
+        models.Pipeline.run_on_schedule
       )
 
       # Count the total number of pipelines
