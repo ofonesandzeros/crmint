@@ -17,6 +17,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 import { ClickOutsideModule } from 'ng-click-outside';
 import { PrettycronPipe } from 'app/pipes/prettycron.pipe';
@@ -37,7 +38,8 @@ import { PipelineLogsComponent } from './pipeline-logs/pipeline-logs.component';
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    ClickOutsideModule
+    ClickOutsideModule,
+    MatPaginatorModule
   ],
   declarations: [
     PipelinesComponent,

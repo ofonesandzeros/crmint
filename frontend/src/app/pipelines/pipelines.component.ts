@@ -33,6 +33,7 @@ export class PipelinesComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 10; // Number of pipelines per page
   totalPages: number = 0;
+  totalPipelines: number = 0;
   filesToUpload: Array<File> = [];
   state = 'loading'; // State has one of values: loading, loaded, error
 
