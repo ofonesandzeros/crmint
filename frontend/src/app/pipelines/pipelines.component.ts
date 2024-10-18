@@ -67,6 +67,8 @@ export class PipelinesComponent implements OnInit {
           });
           this.totalPipelines = response.total || 0;
           this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
+          
+          this.updateDisplayedPipelines();
         } else {
           console.error('Unexpected response structure:', response);
         }
