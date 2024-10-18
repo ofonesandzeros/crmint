@@ -11,3 +11,32 @@
   font-size: 15px
   line-height: 1
   vertical-align: top
+
+/* Custom styles for the paginator */
+.mat-paginator
+  display: flex
+  justify-content: flex-end  /* Align paginator content to the right */
+  margin: 10px 0 0 0  /* Add margin to position it better within the layout */
+  width: 100%  /* Ensure it spans the width of the container */
+  padding-right: 20px  /* Adjust padding if needed */
+
+.mat-paginator-range-label
+  margin-right: 16px  /* Space between range label and page size select */
+  font-size: 14px  /* Make font size consistent with rest of the UI */
+
+.mat-paginator-page-size
+  margin-right: 16px  /* Space between page size select and pagination arrows */
+
+.mat-paginator-page-size-select
+  width: auto  /* Let the select input size adjust naturally */
+
+.mat-paginator-navigation
+  display: flex
+  align-items: center
+
+.mat-paginator-range-actions
+  display: flex
+  align-items: center
+
+.mat-paginator-range-actions .mat-icon-button
+  margin: 0 4px  /* Add spacing between pagination buttons */
