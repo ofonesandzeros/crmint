@@ -147,32 +147,25 @@ class PipelineList(Resource):
       args = parser.parse_args()
       page = args['page']
       items_per_page = args['itemsPerPage']
+
       tracker = insight.GAProvider()
       tracker.track_event(category='pipelines', action='list')
+
       query = models.Pipeline.query.options(
         (orm.defaultload(models.Pipeline.jobs).defaultload(
-            models.Job.params).defer(models.Param.value)),
+          models.Job.params).defer(models.Param.value)),
         (orm.defaultload(models.Pipeline.jobs).defaultload(
-            models.Job.params).defer(models.Param.runtime_value)))
+          models.Job.params).defer(models.Param.runtime_value))
+      )
       total_pipelines = query.count()
       pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
-      serialized_pipelines = [
-        {
-          'id': p.id,
-          'name': p.name,
-          'emails_for_notifications': p.emails_for_notifications,
-          'status': p.status,
-          'updated_at': p.updated_at.isoformat() if p.updated_at else None,
-          'run_on_schedule': p.run_on_schedule,
-          'has_jobs': bool(p.jobs),
-          'schedules': [marshal(s, schedule_fields) for s in p.schedules],
-          'params': [marshal(param, param_fields) for param in p.params],
-        }
-        for p in pipelines
-      ]
-      print(f"Returning serialized pipelines: {serialized_pipelines}")
+
+      # Ensure 'has_jobs' is a property or accessible attribute on the Pipeline model
+      for pipeline in pipelines:
+        pipeline.has_jobs = bool(pipeline.jobs)
+
       return {
-        'pipelines': serialized_pipelines,
+        'pipelines': pipelines,
         'total': total_pipelines,
         'page': page,
         'itemsPerPage': items_per_page

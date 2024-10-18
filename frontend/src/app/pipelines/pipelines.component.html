@@ -66,9 +66,11 @@
           </div>
         </div>
         <mat-paginator [length]="totalPipelines"
-               [pageSize]="itemsPerPage"
-               [pageIndex]="currentPage - 1"
-               (page)="onPageChange($event)">
+                       [pageSize]="itemsPerPage"
+                       [pageIndex]="currentPage - 1"
+                       [pageSizeOptions]="[5, 10, 20, 50]"
+                       showFirstLastButtons
+                       (page)="onPageChange($event)">
         </mat-paginator>
       </div>
       <ng-template #nopipelines>

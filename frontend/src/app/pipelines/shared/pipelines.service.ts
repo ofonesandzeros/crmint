@@ -16,21 +16,21 @@ import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { ApiService } from 'app/api.service';
+import { PaginatedPipelines } from 'app/models/paginated-pipelines'; // Import the interface
 
 @Injectable()
 export class PipelinesService extends ApiService {
 
   private url = `${this.getHost()}/pipelines`;
 
-  getPipelines(page: number = 1, itemsPerPage: number = 10): Promise<any> {
+  getPipelines(page: number = 1, itemsPerPage: number = 10): Promise<PaginatedPipelines> {
     this.removeContentTypeHeader();
     const params = new HttpParams()
       .set('page', page.toString())
       .set('itemsPerPage', itemsPerPage.toString());
 
-    return this.http.get(this.url, { ...this.options, params })
+    return this.http.get<PaginatedPipelines>(this.url, { ...this.options, params })
       .toPromise()
-      .then(response => response)
       .catch(this.handleError);
   }
 

@@ -35,7 +35,7 @@ export class PipelinesComponent implements OnInit {
   totalPages: number = 0;
   totalPipelines: number = 0;
   filesToUpload: Array<File> = [];
-  state = 'loading'; // State has one of values: loading, loaded, error
+  state = 'loading' | 'loaded' | 'error' = 'loading'; // Stronger typing
 
   constructor(
     private pipelinesService: PipelinesService,
@@ -47,22 +47,26 @@ export class PipelinesComponent implements OnInit {
   }
 
   loadPipelines(page: number, itemsPerPage: number) {
+    this.state = 'loading';
     this.pipelinesService.getPipelines(page, itemsPerPage).then(
       (response: any) => {
         console.log('Raw API response:', response);
         if (response && Array.isArray(response.pipelines)) {
-          this.pipelines = response.pipelines.map(pipelineData => {
-            return new Pipeline(pipelineData);
-          });
+          this.pipelines = response.pipelines.map(pipelineData => new Pipeline(pipelineData));
+          this.displayedPipelines = this.pipelines; // Direct assignment
           this.totalPipelines = response.total || 0;
           this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
-          this.updateDisplayedPipelines();
+          this.currentPage = response.page; // Update current page based on response
+          this.itemsPerPage = response.itemsPerPage; // Update items per page if necessary
+          this.state = 'loaded';
         } else {
           console.error('Unexpected response structure:', response);
+          this.state = 'error';
         }
       },
       error => {
         console.error('Error loading pipelines:', error);
+        this.state = 'error';
       }
     );
   }
