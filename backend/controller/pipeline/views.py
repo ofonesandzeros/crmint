@@ -27,7 +27,7 @@ from flask_restful import Api
 from flask_restful import fields
 from flask_restful import marshal_with
 from flask_restful import reqparse
-from flask_restful import Resource
+from flask_restful import Resource, marshal
 from google.cloud import logging
 import jinja2
 from sqlalchemy import orm
