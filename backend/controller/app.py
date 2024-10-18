@@ -47,7 +47,8 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
         'pool_size': 5,          # Maintain 5 active connections in the pool
         'max_overflow': 10,        # Allow up to 10 extra connections beyond the pool size
         'pool_recycle': 1800,      # Recycle connections every hour to avoid stale connections
-        'pool_timeout': 20         # Wait up to 20 seconds for a connection before raising an error
+        'pool_timeout': 20,        # Wait up to 20 seconds for a connection before raising an error
+        'pool_pre_ping': True         
     }
     app.config['SQLALCHEMY_ECHO'] = True
 
