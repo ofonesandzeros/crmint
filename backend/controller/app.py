@@ -49,6 +49,7 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
         'pool_recycle': 1800,      # Recycle connections every hour to avoid stale connections
         'pool_timeout': 20         # Wait up to 20 seconds for a connection before raising an error
     }
+    app.config['SQLALCHEMY_ECHO'] = True
 
     if config:
         app.config.update(**config)
