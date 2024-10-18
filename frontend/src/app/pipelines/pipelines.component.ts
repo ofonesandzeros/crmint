@@ -48,6 +48,7 @@ export class PipelinesComponent implements OnInit {
     this.pipelinesService.getPipelines(page, itemsPerPage)
       .then(data => {
         this.pipelines = plainToClass(Pipeline, data as Pipeline[]);
+        this.totalPages = Math.ceil(this.pipelines.length / this.itemsPerPage);
         this.updateDisplayedPipelines();
         this.sortPipelinesByLastActivity();
         this.state = 'loaded';
