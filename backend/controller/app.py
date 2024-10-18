@@ -51,6 +51,7 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
         'pool_pre_ping': True         
     }
     app.config['SQLALCHEMY_ECHO'] = True
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     if config:
         app.config.update(**config)
