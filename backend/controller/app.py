@@ -16,10 +16,9 @@
 
 import os
 from typing import Any, Optional
+from flask import Flask, g
+from controller.extensions import db
 
-from flask import Flask
-
-from controller import extensions
 from controller import job
 from controller import pipeline
 from controller import result
@@ -56,13 +55,24 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
   register_extensions(app)
   register_blueprints(app)
 
+  # Open and close DB sessions properly
+  @app.before_request
+  def before_request():
+    """Open a new SQLAlchemy session at the beginning of each request."""
+    g.db = db.session
+
+  @app.teardown_request
+  def teardown_request(exception=None):
+    """Ensure the session is removed (closed) at the end of each request."""
+    db.session.remove()  # Always remove/close the session
+
   return app
 
 
 def register_extensions(app):
   """Register Flask extensions."""
   extensions.cors.init_app(app)
-  extensions.db.init_app(app)
+  db.init_app(app)
   extensions.migrate.init_app(app, extensions.db)
 
 
