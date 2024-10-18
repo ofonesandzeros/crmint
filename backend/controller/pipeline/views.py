@@ -134,27 +134,33 @@ class PipelineList(Resource):
 
   @marshal_with(pipeline_fields)
   def get(self):
-    parser = reqparse.RequestParser()
-    parser.add_argument('page', type=int, default=1, location='args')
-    parser.add_argument('itemsPerPage', type=int, default=10, location='args')
-    args = parser.parse_args()
-    page = args['page']
-    items_per_page = args['itemsPerPage']
-    tracker = insight.GAProvider()
-    tracker.track_event(category='pipelines', action='list')
-    query = models.Pipeline.query.options(
-        (orm.defaultload(models.Pipeline.jobs).defaultload(
-            models.Job.params).defer(models.Param.value)),
-        (orm.defaultload(models.Pipeline.jobs).defaultload(
-            models.Job.params).defer(models.Param.runtime_value))).all()
-    total_pipelines = query.count()
-    pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
-    return {
-      'pipelines': pipelines,
-      'total': total_pipelines,
-      'page': page,
-      'itemsPerPage': items_per_page
-    }
+    try:
+      parser = reqparse.RequestParser()
+      parser.add_argument('page', type=int, default=1, location='args')
+      parser.add_argument('itemsPerPage', type=int, default=10, location='args')
+      args = parser.parse_args()
+      page = args['page']
+      items_per_page = args['itemsPerPage']
+      tracker = insight.GAProvider()
+      tracker.track_event(category='pipelines', action='list')
+      query = models.Pipeline.query.options(
+          (orm.defaultload(models.Pipeline.jobs).defaultload(
+              models.Job.params).defer(models.Param.value)),
+          (orm.defaultload(models.Pipeline.jobs).defaultload(
+              models.Job.params).defer(models.Param.runtime_value))).all()
+      total_pipelines = query.count()
+      pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
+      return {
+        'pipelines': pipelines,
+        'total': total_pipelines,
+        'page': page,
+        'itemsPerPage': items_per_page
+      }
+    except Exception as e:
+      # Log the error
+      print(f"Error in PipelineList.get: {str(e)}")
+      # Return a more informative error response
+      return {'error': 'An unexpected error occurred'}, 500
 
   @marshal_with(pipeline_fields)
   def post(self):
