@@ -19,7 +19,6 @@ from typing import Any, Optional
 from flask import Flask
 
 from controller import extensions
-
 from controller import job
 from controller import pipeline
 from controller import result
@@ -40,13 +39,13 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
     
     # Set up database connection pooling
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-        'DATABASE_URI',
-        'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
+      'DATABASE_URI',
+      'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
     app.config['SQLALCHEMY_ECHO'] = True
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     if config:
-        app.config.update(**config)
+      app.config.update(**config)
 
     register_extensions(app)
     register_blueprints(app)
@@ -55,17 +54,17 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
 
 
 def register_extensions(app):
-    """Register Flask extensions."""
-    extensions.cors.init_app(app)
-    extensions.db.init_app(app)
-    extensions.migrate.init_app(app, extensions.db)
+  """Register Flask extensions."""
+  extensions.cors.init_app(app)
+  extensions.db.init_app(app)
+  extensions.migrate.init_app(app, extensions.db)
 
 
 def register_blueprints(app):
-    """Register Flask blueprints."""
-    app.register_blueprint(views.blueprint, url_prefix='/api')
-    app.register_blueprint(pipeline.views.blueprint, url_prefix='/api')
-    app.register_blueprint(job.views.blueprint, url_prefix='/api')
-    app.register_blueprint(stage.views.blueprint, url_prefix='/api')
-    app.register_blueprint(result.views.blueprint)
-    app.register_blueprint(starter.views.blueprint)
+  """Register Flask blueprints."""
+  app.register_blueprint(views.blueprint, url_prefix='/api')
+  app.register_blueprint(pipeline.views.blueprint, url_prefix='/api')
+  app.register_blueprint(job.views.blueprint, url_prefix='/api')
+  app.register_blueprint(stage.views.blueprint, url_prefix='/api')
+  app.register_blueprint(result.views.blueprint)
+  app.register_blueprint(starter.views.blueprint)
