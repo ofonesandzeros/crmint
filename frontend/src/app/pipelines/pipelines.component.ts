@@ -35,7 +35,7 @@ export class PipelinesComponent implements OnInit {
   totalPages: number = 0;
   totalPipelines: number = 0;
   filesToUpload: Array<File> = [];
-  state = 'loading' | 'loaded' | 'error' = 'loading'; // Stronger typing
+  state: 'loading' | 'loaded' | 'error' = 'loading'; // Stronger typing
 
   constructor(
     private pipelinesService: PipelinesService,
