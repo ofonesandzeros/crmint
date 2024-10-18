@@ -16,9 +16,8 @@
 
 import os
 from typing import Any, Optional
-from flask import Flask, g
+from flask import Flask
 
-# Import extensions module here
 from controller import extensions
 
 from controller import job
@@ -51,17 +50,6 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
 
     register_extensions(app)
     register_blueprints(app)
-
-    # Open and close DB sessions properly
-    @app.before_request
-    def before_request():
-        """Open a new SQLAlchemy session at the beginning of each request."""
-        g.db = extensions.db.session
-
-    @app.teardown_request
-    def teardown_request(exception=None):
-        """Ensure the session is removed (closed) at the end of each request."""
-        extensions.db.session.remove()  # Always remove/close the session
 
     return app
 
