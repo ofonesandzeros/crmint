@@ -160,10 +160,6 @@ class PipelineList(Resource):
       total_pipelines = query.count()
       pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
 
-      # Ensure 'has_jobs' is a property or accessible attribute on the Pipeline model
-      for pipeline in pipelines:
-        pipeline.has_jobs = bool(pipeline.jobs)
-
       print(f"Total pipelines found: {total_pipelines}")
       print(f"Pipelines on page {page}: {[p.id for p in pipelines]}")
 
