@@ -152,11 +152,11 @@ class PipelineList(Resource):
       tracker.track_event(category='pipelines', action='list')
 
       query = models.Pipeline.query.options(
-        (orm.defaultload(models.Pipeline.jobs).defaultload(
-          models.Job.params).defer(models.Param.value)),
-        (orm.defaultload(models.Pipeline.jobs).defaultload(
-          models.Job.params).defer(models.Param.runtime_value))
-      )
+          (orm.defaultload(models.Pipeline.jobs).defaultload(
+              models.Job.params).defer(models.Param.value)),
+          (orm.defaultload(models.Pipeline.jobs).defaultload(
+              models.Job.params).defer(models.Param.runtime_value))
+      ).order_by(models.Pipeline.updated_at.desc())
       total_pipelines = query.count()
       pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
 
