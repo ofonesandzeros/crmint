@@ -17,7 +17,9 @@
 import os
 from typing import Any, Optional
 from flask import Flask, g
-from controller.extensions import db
+
+# Import extensions module here
+from controller import extensions
 
 from controller import job
 from controller import pipeline
@@ -26,61 +28,60 @@ from controller import stage
 from controller import starter
 from controller import views
 
-
 def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
-  """An application factory.
+    """An application factory.
 
-  Args:
-    config: Dictionary of config flags to update the app with.
+    Args:
+        config: Dictionary of config flags to update the app with.
 
-  Returns:
-    The configured Flask application.
-  """
-  app = Flask(__name__)
-  
-  # Set up database connection pooling
-  app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-      'DATABASE_URI',
-      'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
-  app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-      'pool_size': 5,          # Maintain 5 active connections in the pool
-      'max_overflow': 10,        # Allow up to 10 extra connections beyond the pool size
-      'pool_recycle': 1800,      # Recycle connections every hour to avoid stale connections
-      'pool_timeout': 20         # Wait up to 20 seconds for a connection before raising an error
-  }
+    Returns:
+        The configured Flask application.
+    """
+    app = Flask(__name__)
+    
+    # Set up database connection pooling
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+        'DATABASE_URI',
+        'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 5,          # Maintain 5 active connections in the pool
+        'max_overflow': 10,        # Allow up to 10 extra connections beyond the pool size
+        'pool_recycle': 1800,      # Recycle connections every hour to avoid stale connections
+        'pool_timeout': 20         # Wait up to 20 seconds for a connection before raising an error
+    }
 
-  if config:
-    app.config.update(**config)
+    if config:
+        app.config.update(**config)
 
-  register_extensions(app)
-  register_blueprints(app)
+    register_extensions(app)
+    register_blueprints(app)
 
-  # Open and close DB sessions properly
-  @app.before_request
-  def before_request():
-    """Open a new SQLAlchemy session at the beginning of each request."""
-    g.db = db.session
+    # Open and close DB sessions properly
+    @app.before_request
+    def before_request():
+        """Open a new SQLAlchemy session at the beginning of each request."""
+        g.db = extensions.db.session
 
-  @app.teardown_request
-  def teardown_request(exception=None):
-    """Ensure the session is removed (closed) at the end of each request."""
-    db.session.remove()  # Always remove/close the session
+    @app.teardown_request
+    def teardown_request(exception=None):
+        """Ensure the session is removed (closed) at the end of each request."""
+        extensions.db.session.remove()  # Always remove/close the session
 
-  return app
+    return app
 
 
 def register_extensions(app):
-  """Register Flask extensions."""
-  extensions.cors.init_app(app)
-  db.init_app(app)
-  extensions.migrate.init_app(app, extensions.db)
+    """Register Flask extensions."""
+    extensions.cors.init_app(app)
+    extensions.db.init_app(app)
+    extensions.migrate.init_app(app, extensions.db)
 
 
 def register_blueprints(app):
-  """Register Flask blueprints."""
-  app.register_blueprint(views.blueprint, url_prefix='/api')
-  app.register_blueprint(pipeline.views.blueprint, url_prefix='/api')
-  app.register_blueprint(job.views.blueprint, url_prefix='/api')
-  app.register_blueprint(stage.views.blueprint, url_prefix='/api')
-  app.register_blueprint(result.views.blueprint)
-  app.register_blueprint(starter.views.blueprint)
+    """Register Flask blueprints."""
+    app.register_blueprint(views.blueprint, url_prefix='/api')
+    app.register_blueprint(pipeline.views.blueprint, url_prefix='/api')
+    app.register_blueprint(job.views.blueprint, url_prefix='/api')
+    app.register_blueprint(stage.views.blueprint, url_prefix='/api')
+    app.register_blueprint(result.views.blueprint)
+    app.register_blueprint(starter.views.blueprint)
