@@ -150,6 +150,7 @@ class PipelineList(Resource):
             models.Job.params).defer(models.Param.runtime_value)))
       total_pipelines = query.count()
       pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
+      print(f"Returning pipelines: {pipelines}")
       return {
         'pipelines': pipelines,
         'total': total_pipelines,

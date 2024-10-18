@@ -49,6 +49,7 @@ export class PipelinesComponent implements OnInit {
   loadPipelines(page: number, itemsPerPage: number) {
     this.pipelinesService.getPipelines(page, itemsPerPage).then(
       (response: any) => {
+        console.log('Raw API response:', response);
         if (response && response.pipelines) {
           this.pipelines = response.pipelines.map(pipelineData => {
             // Create a new Pipeline instance with default values
