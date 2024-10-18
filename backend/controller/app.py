@@ -44,10 +44,10 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
       'DATABASE_URI',
       'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
   app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-      'pool_size': 10,          # Maintain 10 active connections in the pool
-      'max_overflow': 20,        # Allow up to 20 extra connections beyond the pool size
-      'pool_recycle': 3600,      # Recycle connections every hour to avoid stale connections
-      'pool_timeout': 30         # Wait up to 30 seconds for a connection before raising an error
+      'pool_size': 5,          # Maintain 5 active connections in the pool
+      'max_overflow': 10,        # Allow up to 10 extra connections beyond the pool size
+      'pool_recycle': 1800,      # Recycle connections every hour to avoid stale connections
+      'pool_timeout': 20         # Wait up to 20 seconds for a connection before raising an error
   }
 
   if config:
