@@ -38,13 +38,24 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
     The configured Flask application.
   """
   app = Flask(__name__)
+  
+  # Set up database connection pooling
   app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
       'DATABASE_URI',
       'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
+  app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+      'pool_size': 10,          # Maintain 10 active connections in the pool
+      'max_overflow': 20,        # Allow up to 20 extra connections beyond the pool size
+      'pool_recycle': 3600,      # Recycle connections every hour to avoid stale connections
+      'pool_timeout': 30         # Wait up to 30 seconds for a connection before raising an error
+  }
+
   if config:
     app.config.update(**config)
+
   register_extensions(app)
   register_blueprints(app)
+
   return app
 
 
