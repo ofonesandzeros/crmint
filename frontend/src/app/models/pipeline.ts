@@ -20,14 +20,14 @@ import { Schedule } from './schedule';
 import { Param } from './param';
 
 export class Pipeline {
-  id: number;
-  name: string;
-  emails_for_notifications: string;
-  status: string;
-  updated_at: string;
-  run_on_schedule: boolean;
-  sid: string;
-  has_jobs: boolean;
+  id: number = 0;
+  name: string = '';
+  emails_for_notifications: string = '';
+  status: string = '';
+  updated_at: string = '';
+  run_on_schedule: boolean = false;
+  sid: string = '';
+  has_jobs: boolean = false;
   is_manual_run: boolean = false;
 
   @Type(() => Schedule)
@@ -36,9 +36,16 @@ export class Pipeline {
   @Type(() => Param)
   params: Param[] = [];
 
+  constructor(data?: Partial<Pipeline>) {
+    if (data) {
+      Object.assign(this, data);
+    }
+  }
+
   blocked_running(): boolean {
     return false; // Allow manual execution regardless of the run_on_schedule flag
   }
+
   blocked_stopping(): boolean {
     return this.status === 'stopping';
   }
@@ -55,14 +62,14 @@ export class Pipeline {
     return ['idle', 'finished', 'failed', 'succeeded'].includes(this.status);
   }
 
-  blocked_managing() {
+  blocked_managing(): boolean {
     return this.run_on_schedule || ['running', 'stopping'].includes(this.status);
   }
 
-  run_on_schedule_next_date(showText = false) {
+  run_on_schedule_next_date(showText = false): string {
     let text = showText ? 'Run on schedule' : '';
     if (this.run_on_schedule) {
-      let nextDate = null;
+      let nextDate: Date | null = null;
   
       this.schedules.forEach((schedule) => {
         try {

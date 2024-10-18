@@ -150,9 +150,23 @@ class PipelineList(Resource):
             models.Job.params).defer(models.Param.runtime_value)))
       total_pipelines = query.count()
       pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
-      print(f"Returning pipelines: {pipelines}")
+      serialized_pipelines = [
+        {
+          'id': p.id,
+          'name': p.name,
+          'emails_for_notifications': p.emails_for_notifications,
+          'status': p.status,
+          'updated_at': p.updated_at.isoformat() if p.updated_at else None,
+          'run_on_schedule': p.run_on_schedule,
+          'has_jobs': bool(p.jobs),
+          'schedules': [marshal(s, schedule_fields) for s in p.schedules],
+          'params': [marshal(param, param_fields) for param in p.params],
+        }
+        for p in pipelines
+      ]
+      print(f"Returning serialized pipelines: {serialized_pipelines}")
       return {
-        'pipelines': pipelines,
+        'pipelines': serialized_pipelines,
         'total': total_pipelines,
         'page': page,
         'itemsPerPage': items_per_page

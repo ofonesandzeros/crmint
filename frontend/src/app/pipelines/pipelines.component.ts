@@ -50,25 +50,12 @@ export class PipelinesComponent implements OnInit {
     this.pipelinesService.getPipelines(page, itemsPerPage).then(
       (response: any) => {
         console.log('Raw API response:', response);
-        if (response && response.pipelines) {
+        if (response && Array.isArray(response.pipelines)) {
           this.pipelines = response.pipelines.map(pipelineData => {
-            // Create a new Pipeline instance with default values
-            const pipeline = new Pipeline();
-            // Assign values from API response, using default values if null
-            pipeline.id = pipelineData.id || 0;
-            pipeline.name = pipelineData.name || '';
-            pipeline.emails_for_notifications = pipelineData.emails_for_notifications || [];
-            pipeline.status = pipelineData.status || 'unknown';
-            pipeline.updated_at = pipelineData.updated_at || new Date().toISOString();
-            pipeline.run_on_schedule = pipelineData.run_on_schedule || false;
-            pipeline.has_jobs = pipelineData.has_jobs || false;
-            pipeline.schedules = pipelineData.schedules || [];
-            pipeline.params = pipelineData.params || [];
-            return pipeline;
+            return new Pipeline(pipelineData);
           });
           this.totalPipelines = response.total || 0;
           this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
-          
           this.updateDisplayedPipelines();
         } else {
           console.error('Unexpected response structure:', response);
