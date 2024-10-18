@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { Component, OnInit, Inject, forwardRef } from '@angular/core';
+import { PageEvent } from '@angular/material/paginator';
 
 import { plainToClass } from 'class-transformer';
 
@@ -46,13 +47,22 @@ export class PipelinesComponent implements OnInit {
 
   loadPipelines(page: number, itemsPerPage: number) {
     this.pipelinesService.getPipelines(page, itemsPerPage)
-      .then(data => {
-        this.pipelines = plainToClass(Pipeline, data as Pipeline[]);
-        this.totalPages = Math.ceil(this.pipelines.length / this.itemsPerPage);
-        this.updateDisplayedPipelines();
-        this.sortPipelinesByLastActivity();
-        this.state = 'loaded';
+      .then((response: any) => {
+        if (response && response.pipelines) {
+          this.pipelines = plainToClass(Pipeline, response.pipelines as Pipeline[]);
+          this.totalPipelines = response.total;
+          this.currentPage = response.page;
+          this.itemsPerPage = response.itemsPerPage;
+          this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
+          this.updateDisplayedPipelines();
+          this.sortPipelinesByLastActivity();
+          this.state = 'loaded';
+        } else {
+          console.error('Unexpected response structure:', response);
+          this.state = 'error';
+        }
       }).catch(err => {
+        console.error('Error loading pipelines:', err);
         this.state = 'error';
       });
   }
@@ -76,6 +86,10 @@ export class PipelinesComponent implements OnInit {
       const dateB = new Date(b.updated_at).getTime();
       return dateB - dateA; // Sort descending by last activity
     });
+  }
+
+  onPageChange(event: PageEvent) {
+    this.loadPipelines(event.pageIndex + 1, event.pageSize);
   }
 
   deletePipeline(pipeline) {

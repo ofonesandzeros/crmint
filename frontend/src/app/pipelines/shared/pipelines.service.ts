@@ -21,16 +21,16 @@ export class PipelinesService extends ApiService {
 
   private url = `${this.getHost()}/pipelines`;
 
-  getPipelines(page: number = 1, itemsPerPage: number = 10) {
+  getPipelines(page: number = 1, itemsPerPage: number = 10): Promise<any> {
     this.removeContentTypeHeader();
-    const params = {
-      page: page.toString(),
-      itemsPerPage: itemsPerPage.toString()
-    };
-    this.options.params = params;
-    return this.http.get(this.url, this.options)
-                    .toPromise()
-                    .catch(this.handleError);
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('items_per_page', itemsPerPage.toString());
+
+    return this.http.get(this.url, { ...this.options, params })
+      .toPromise()
+      .then(response => response)
+      .catch(this.handleError);
   }
 
   getPipeline(id) {
