@@ -71,20 +71,6 @@ export class PipelinesComponent implements OnInit {
     );
   }
 
-  updateDisplayedPipelines() {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.displayedPipelines = this.pipelines.slice(startIndex, endIndex);
-  }
-
-  sortPipelinesByLastActivity() {
-    this.pipelines.sort((a, b) => {
-      const dateA = new Date(a.updated_at).getTime();
-      const dateB = new Date(b.updated_at).getTime();
-      return dateB - dateA; // Sort descending by last activity
-    });
-  }
-
   onPageChange(event: PageEvent) {
     this.loadPipelines(event.pageIndex + 1, event.pageSize);
   }
