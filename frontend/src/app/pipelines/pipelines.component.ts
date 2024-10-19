@@ -16,9 +16,7 @@ import { Component, OnInit, Inject, forwardRef } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-
 import { plainToClass } from 'class-transformer';
-
 import { Pipeline } from 'app/models/pipeline';
 import { PipelinesService } from './shared/pipelines.service';
 import { AppComponent } from 'app/app.component';
@@ -38,6 +36,7 @@ export class PipelinesComponent implements OnInit {
   totalPipelines: number = 0;
   filesToUpload: Array<File> = [];
   filterText: string = '';
+  filterTimeout: any;
   state: 'loading' | 'loaded' | 'error' = 'loading';
 
   constructor(
@@ -54,8 +53,11 @@ export class PipelinesComponent implements OnInit {
     });
   }
 
-  loadPipelines(page: number, itemsPerPage: number) {
-    this.state = 'loading';
+  loadPipelines(page: number, itemsPerPage: number, showLoader: boolean = true) {
+    if (showLoader) {
+      this.state = 'loading'; // Only show spinner if showLoader is true
+    }
+
     this.pipelinesService.getPipelines(page, itemsPerPage, this.filterText).then(
       (response: any) => {
         console.log('Raw API response:', response);
@@ -64,11 +66,10 @@ export class PipelinesComponent implements OnInit {
             pipelineData => new Pipeline(pipelineData));
           this.displayedPipelines = this.pipelines;
           this.totalPipelines = response.total || 0;
-          this.totalPages = Math.ceil(
-            this.totalPipelines / this.itemsPerPage);
+          this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
           this.currentPage = response.page;
           this.itemsPerPage = response.itemsPerPage;
-          this.state = 'loaded';
+          this.state = 'loaded'; // Only update state to loaded when the data is fetched
         } else {
           console.error('Unexpected response structure:', response);
           this.state = 'error';
@@ -82,12 +83,19 @@ export class PipelinesComponent implements OnInit {
   }
 
   onFilterChange() {
-    this.loadPipelines(this.currentPage, this.itemsPerPage);
+    if (this.filterTimeout) {
+      clearTimeout(this.filterTimeout); // Clear the previous timer to avoid multiple calls
+    }
+
+    // Set up a debounce to wait before firing the filter action
+    this.filterTimeout = setTimeout(() => {
+      this.loadPipelines(this.currentPage, this.itemsPerPage, false); // No spinner for filtering
+    }, 300); // Debounce time of 300ms
   }
 
   onPageChange(event: PageEvent) {
     this.router.navigate(['/pipelines'], { queryParams: { page: event.pageIndex + 1 } });
-    this.loadPipelines(event.pageIndex + 1, event.pageSize)
+    this.loadPipelines(event.pageIndex + 1, event.pageSize, true); // Show spinner on page change
   }
 
   deletePipeline(pipeline) {
