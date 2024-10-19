@@ -28,9 +28,8 @@ export class NavBarComponent implements OnInit {
 
   ngOnInit() { }
 
-  resetPipelines(event: Event) {
-    event.preventDefault();
-    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+  resetPipelines() {
+    this.router.navigateByUrl('/pipelines', { skipLocationChange: true }).then(() => {
       this.router.navigate(['/pipelines']);
     });
   }
