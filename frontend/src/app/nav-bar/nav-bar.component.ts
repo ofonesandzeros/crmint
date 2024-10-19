@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router'; // Import Router
 import { environment } from 'environments/environment';
 
 @Component({
@@ -23,9 +24,13 @@ import { environment } from 'environments/environment';
 export class NavBarComponent implements OnInit {
   enabled_stages: boolean = environment.enabled_stages;
 
-  constructor() { }
+  constructor(private router: Router) { } // Inject Router
 
-  ngOnInit() {
+  ngOnInit() { }
+
+  resetPipelines() {
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate(['/pipelines']);
+    });
   }
-
 }
