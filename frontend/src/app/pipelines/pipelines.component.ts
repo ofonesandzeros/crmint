@@ -69,7 +69,7 @@ export class PipelinesComponent implements OnInit {
           this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
           this.currentPage = response.page;
           this.itemsPerPage = response.itemsPerPage;
-          this.state = 'loaded'; // Only update state to loaded when the data is fetched
+          this.state = 'loaded';
         } else {
           console.error('Unexpected response structure:', response);
           this.state = 'error';
@@ -88,13 +88,15 @@ export class PipelinesComponent implements OnInit {
     }
 
     this.filterTimeout = setTimeout(() => {
-      this.loadPipelines(this.currentPage, this.itemsPerPage, false);
+      this.loadPipelines(
+        this.currentPage, this.itemsPerPage, false);
     }, 300);
   }
 
   onPageChange(event: PageEvent) {
-    this.router.navigate(['/pipelines'], { queryParams: { page: event.pageIndex + 1 } });
-    this.loadPipelines(event.pageIndex + 1, event.pageSize, true); // Show spinner on page change
+    this.router.navigate(
+      ['/pipelines'], { queryParams: { page: event.pageIndex + 1 } });
+    this.loadPipelines(event.pageIndex + 1, event.pageSize, true);
   }
 
   deletePipeline(pipeline) {
