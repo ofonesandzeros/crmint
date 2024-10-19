@@ -15,6 +15,7 @@
 import { Component, OnInit, Inject, forwardRef } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { plainToClass } from 'class-transformer';
 
@@ -41,6 +42,7 @@ export class PipelinesComponent implements OnInit {
   constructor(
     private pipelinesService: PipelinesService,
     private route: ActivatedRoute,
+    private router: Router,  // Inject the router
     @Inject(forwardRef(() => AppComponent)) private appComponent: AppComponent
   ) { }
 
@@ -79,6 +81,7 @@ export class PipelinesComponent implements OnInit {
   }
 
   onPageChange(event: PageEvent) {
+    this.router.navigate(['/pipelines'], { queryParams: { page: event.pageIndex + 1 } });
     this.loadPipelines(event.pageIndex + 1, event.pageSize);
   }
 
