@@ -41,40 +41,18 @@
 .mat-paginator-range-actions .mat-icon-button
   margin: 0 4px
 
-/* Custom styles for the filter and buttons */
+/* Custom styles for the filter and buttons container */
 .crmi-card-title-buttons
   display: flex
   align-items: center
-  gap: 15px
+  gap: 15px  /* Ensures consistent spacing between input and buttons */
 
+/* Custom styles for the filter text input */
 input[matInput]
   font-size: 14px
   padding: 8px 12px
-  border: 1px solid #ccc
+  border: 1px solid #ddd
   border-radius: 4px
   width: 250px
-
-a[mat-raised-button], button[mat-raised-button]
-  font-size: 14px
-  padding: 6px 16px
-  margin-left: 8px
-
-/* Improve pipeline list spacing */
-.crmi-card-list-item
-  display: flex
-  justify-content: space-between
-  padding: 12px 0
-  border-bottom: 1px solid #eee
-  &:last-child
-    border-bottom: none
-
-.crmi-card-list-item-col
-  flex: 1
-  font-size: 14px
-  color: #333
-
-.crmi-card-list-item-col-1
-  flex: 0 0 120px
-
-.crmi-card-list-item-col-2
-  flex: 0 0 160px
+  height: 36px  /* Adjusts height to align with the button height */
+  box-sizing: border-box
