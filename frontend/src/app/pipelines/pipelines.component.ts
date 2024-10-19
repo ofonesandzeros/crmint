@@ -36,6 +36,8 @@ export class PipelinesComponent implements OnInit {
   filterText: string = '';
   state: 'loading' | 'loaded' | 'error' = 'loading';
 
+  private requestCounter = 0;
+
   constructor(
     private pipelinesService: PipelinesService,
     @Inject(forwardRef(() => AppComponent)) private appComponent: AppComponent
@@ -49,26 +51,34 @@ export class PipelinesComponent implements OnInit {
     if (showLoader) {
       this.state = 'loading'; // Only show spinner if showLoader is true
     }
+
+    const currentRequestId = ++this.requestCounter;
+
     this.pipelinesService.getPipelines(page, itemsPerPage, this.filterText).then(
       (response: any) => {
-        console.log('Raw API response:', response);
-        if (response && Array.isArray(response.pipelines)) {
-          this.pipelines = response.pipelines.map(
-            pipelineData => new Pipeline(pipelineData));
-          this.displayedPipelines = this.pipelines;
-          this.totalPipelines = response.total || 0;
-          this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
-          this.currentPage = response.page;
-          this.itemsPerPage = response.itemsPerPage;
-          this.state = 'loaded';
-        } else {
-          console.error('Unexpected response structure:', response);
-          this.state = 'error';
+        if (currentRequestId === this.requestCounter) {
+          console.log('Raw API response:', response);
+          if (response && Array.isArray(response.pipelines)) {
+            this.pipelines = response.pipelines.map(
+              pipelineData => new Pipeline(pipelineData));
+            this.displayedPipelines = this.pipelines;
+            this.totalPipelines = response.total || 0;
+            this.totalPages = Math.ceil(
+              this.totalPipelines / this.itemsPerPage);
+            this.currentPage = response.page;
+            this.itemsPerPage = response.itemsPerPage;
+            this.state = 'loaded';
+          } else {
+            console.error('Unexpected response structure:', response);
+            this.state = 'error';
+          }
         }
       },
       error => {
-        console.error('Error loading pipelines:', error);
-        this.state = 'error';
+        if (currentRequestId === this.requestCounter) {
+          console.error('Error loading pipelines:', error);
+          this.state = 'error';
+        }
       }
     );
   }
