@@ -49,7 +49,6 @@ export class PipelinesComponent implements OnInit {
     if (showLoader) {
       this.state = 'loading'; // Only show spinner if showLoader is true
     }
-
     this.pipelinesService.getPipelines(page, itemsPerPage, this.filterText).then(
       (response: any) => {
         console.log('Raw API response:', response);
@@ -74,9 +73,21 @@ export class PipelinesComponent implements OnInit {
     );
   }
 
+  /**
+   * Generic method to reset the pipeline data.
+   * @param showLoader: Whether or not to show the loader during the reset.
+   */
+  resetPipelineData(showLoader: boolean = true) {
+    this.currentPage = 1;
+    this.loadPipelines(this.currentPage, this.itemsPerPage, showLoader);
+  }
+
   onFilterChange() {
-    this.currentPage = 1; // Reset to page 1 when filtering
-    this.loadPipelines(this.currentPage, this.itemsPerPage, false);
+    this.resetPipelineData(false);
+  }
+
+  resetPipelines() {
+    this.resetPipelineData(true);
   }
 
   onPageChange(event: PageEvent) {
