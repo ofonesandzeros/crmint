@@ -16,12 +16,18 @@ import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { ApiService } from 'app/api.service';
-import { PaginatedPipelines } from 'app/models/paginated-pipelines';
 
 @Injectable()
 export class PipelinesService extends ApiService {
 
   private url = `${this.getHost()}/pipelines`;
+
+  interface PaginatedPipelines {
+    pipelines: Pipeline[];
+    total: number;
+    page: number;
+    itemsPerPage: number;
+  }
 
   getPipelines(page: number = 1, itemsPerPage: number = 10): Promise<PaginatedPipelines> {
     this.removeContentTypeHeader();
