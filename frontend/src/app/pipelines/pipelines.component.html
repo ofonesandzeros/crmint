@@ -16,6 +16,14 @@
       <mat-card-title>
         Pipelines
         <div class="crmi-card-title-buttons">
+          <input 
+            matInput 
+            type="text" 
+            placeholder="Filter pipelines by name" 
+            [(ngModel)]="filterText" 
+            (input)="onFilterChange()"
+            style="margin-left: 15px;"
+          />
           <a mat-raised-button routerLink="/pipelines/new">
             <mat-icon>add</mat-icon>
             New Pipeline

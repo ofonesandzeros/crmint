@@ -37,6 +37,7 @@ export class PipelinesComponent implements OnInit {
   totalPages: number = 0;
   totalPipelines: number = 0;
   filesToUpload: Array<File> = [];
+  filterText: string = '';
   state: 'loading' | 'loaded' | 'error' = 'loading';
 
   constructor(
@@ -61,7 +62,7 @@ export class PipelinesComponent implements OnInit {
         if (response && Array.isArray(response.pipelines)) {
           this.pipelines = response.pipelines.map(
             pipelineData => new Pipeline(pipelineData));
-          this.displayedPipelines = this.pipelines;
+          this.applyFilter();
           this.totalPipelines = response.total || 0;
           this.totalPages = Math.ceil(
             this.totalPipelines / this.itemsPerPage);
@@ -80,9 +81,25 @@ export class PipelinesComponent implements OnInit {
     );
   }
 
+  // Function to handle the filter input changes
+  onFilterChange() {
+    this.applyFilter();
+  }
+
+  // Filter pipelines based on the filterText
+  applyFilter() {
+    if (this.filterText) {
+      this.displayedPipelines = this.pipelines.filter(pipeline =>
+        pipeline.name.toLowerCase().includes(this.filterText.toLowerCase())
+      );
+    } else {
+      this.displayedPipelines = [...this.pipelines];  // Reset if no filter
+    }
+  }
+
   onPageChange(event: PageEvent) {
     this.router.navigate(['/pipelines'], { queryParams: { page: event.pageIndex + 1 } });
-    this.loadPipelines(event.pageIndex + 1, event.pageSize);
+    this.loadPipelines(event.pageIndex + 1, event.pageSize)
   }
 
   deletePipeline(pipeline) {
