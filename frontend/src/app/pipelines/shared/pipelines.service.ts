@@ -30,11 +30,12 @@ export class PipelinesService extends ApiService {
 
   private url = `${this.getHost()}/pipelines`;
 
-  getPipelines(page: number = 1, itemsPerPage: number = 10): Promise<PaginatedPipelines> {
+  getPipelines(page: number = 1, itemsPerPage: number = 10, filterText: string = ''): Promise<PaginatedPipelines> {
     this.removeContentTypeHeader();
     const params = new HttpParams()
       .set('page', page.toString())
-      .set('itemsPerPage', itemsPerPage.toString());
+      .set('itemsPerPage', itemsPerPage.toString())
+      .set('filter', filterText);
     return this.http.get<PaginatedPipelines>(this.url, { ...this.options, params })
       .toPromise()
       .catch(this.handleError);

@@ -144,6 +144,7 @@ class PipelineList(Resource):
       parser = reqparse.RequestParser()
       parser.add_argument('page', type=int, default=1, location='args')
       parser.add_argument('itemsPerPage', type=int, default=10, location='args')
+      parser.add_argument('filter', type=str, default='', location='args')
       args = parser.parse_args()
       page = args['page']
       items_per_page = args['itemsPerPage']
@@ -157,6 +158,8 @@ class PipelineList(Resource):
           orm.defaultload(models.Pipeline.jobs).defaultload(
               models.Job.params).defer(models.Param.runtime_value)
       ).order_by(models.Pipeline.updated_at.desc())
+      if args['filter']:
+        query = query.filter(models.Pipeline.name.ilike(f"%{args['filter']}%"))
       total_pipelines = query.count()
       pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
       return {

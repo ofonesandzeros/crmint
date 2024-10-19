@@ -56,7 +56,7 @@ export class PipelinesComponent implements OnInit {
 
   loadPipelines(page: number, itemsPerPage: number) {
     this.state = 'loading';
-    this.pipelinesService.getPipelines(page, itemsPerPage).then(
+    this.pipelinesService.getPipelines(page, itemsPerPage, this.filterText).then(
       (response: any) => {
         console.log('Raw API response:', response);
         if (response && Array.isArray(response.pipelines)) {
@@ -81,19 +81,17 @@ export class PipelinesComponent implements OnInit {
     );
   }
 
-  // Function to handle the filter input changes
   onFilterChange() {
     this.applyFilter();
   }
 
-  // Filter pipelines based on the filterText
   applyFilter() {
     if (this.filterText) {
       this.displayedPipelines = this.pipelines.filter(pipeline =>
         pipeline.name.toLowerCase().includes(this.filterText.toLowerCase())
       );
     } else {
-      this.displayedPipelines = [...this.pipelines];  // Reset if no filter
+      this.displayedPipelines = [...this.pipelines];
     }
   }
 
