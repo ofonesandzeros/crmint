@@ -62,7 +62,6 @@ export class PipelinesComponent implements OnInit {
         if (response && Array.isArray(response.pipelines)) {
           this.pipelines = response.pipelines.map(
             pipelineData => new Pipeline(pipelineData));
-          this.applyFilter();
           this.totalPipelines = response.total || 0;
           this.totalPages = Math.ceil(
             this.totalPipelines / this.itemsPerPage);
@@ -82,17 +81,7 @@ export class PipelinesComponent implements OnInit {
   }
 
   onFilterChange() {
-    this.applyFilter();
-  }
-
-  applyFilter() {
-    if (this.filterText) {
-      this.displayedPipelines = this.pipelines.filter(pipeline =>
-        pipeline.name.toLowerCase().includes(this.filterText.toLowerCase())
-      );
-    } else {
-      this.displayedPipelines = [...this.pipelines];
-    }
+    this.loadPipelines(this.currentPage, this.itemsPerPage);
   }
 
   onPageChange(event: PageEvent) {
