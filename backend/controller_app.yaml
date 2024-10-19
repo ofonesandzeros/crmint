@@ -21,7 +21,6 @@ automatic_scaling:
   target_throughput_utilization: 0.9
   max_concurrent_requests: 20
 
-# NOTE: F2 class has 1 core, and the recommended number of workers for gunicorn is = (2*cores + 1).
 runtime: python39
 entrypoint: gunicorn -b :$PORT -w 4 --timeout 120 controller_app:app
 
