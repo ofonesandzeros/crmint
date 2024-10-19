@@ -14,6 +14,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { environment } from 'environments/environment';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-nav-bar',
@@ -23,9 +24,13 @@ import { environment } from 'environments/environment';
 export class NavBarComponent implements OnInit {
   enabled_stages: boolean = environment.enabled_stages;
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit() {
+  }
+
+  goToPipelines() {
+    this.router.navigate(['/pipelines'], { queryParams: { page: 1 } });
   }
 
 }
