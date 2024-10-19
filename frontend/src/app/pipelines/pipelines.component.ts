@@ -14,6 +14,7 @@
 
 import { Component, OnInit, Inject, forwardRef } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
+import { ActivatedRoute } from '@angular/router';
 
 import { plainToClass } from 'class-transformer';
 
@@ -39,11 +40,15 @@ export class PipelinesComponent implements OnInit {
 
   constructor(
     private pipelinesService: PipelinesService,
+    private route: ActivatedRoute,
     @Inject(forwardRef(() => AppComponent)) private appComponent: AppComponent
   ) { }
 
   ngOnInit() {
-    this.loadPipelines(this.currentPage, this.itemsPerPage);
+    this.route.queryParams.subscribe(params => {
+      const page = params['page'] ? +params['page'] : 1;
+      this.loadPipelines(page, this.itemsPerPage);
+    });
   }
 
   loadPipelines(page: number, itemsPerPage: number) {
