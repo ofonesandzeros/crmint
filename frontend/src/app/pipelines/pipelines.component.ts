@@ -88,6 +88,7 @@ export class PipelinesComponent implements OnInit {
     }
 
     this.filterTimeout = setTimeout(() => {
+      this.currentPage = 1;
       this.loadPipelines(
         this.currentPage, this.itemsPerPage, false);
     }, 300);
