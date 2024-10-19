@@ -14,8 +14,6 @@
 
 import { Component, OnInit, Inject, forwardRef } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
-import { ActivatedRoute } from '@angular/router';
-import { Router } from '@angular/router';
 import { plainToClass } from 'class-transformer';
 import { Pipeline } from 'app/models/pipeline';
 import { PipelinesService } from './shared/pipelines.service';
@@ -36,21 +34,15 @@ export class PipelinesComponent implements OnInit {
   totalPipelines: number = 0;
   filesToUpload: Array<File> = [];
   filterText: string = '';
-  filterTimeout: any;
   state: 'loading' | 'loaded' | 'error' = 'loading';
 
   constructor(
     private pipelinesService: PipelinesService,
-    private route: ActivatedRoute,
-    private router: Router,  // Inject the router
     @Inject(forwardRef(() => AppComponent)) private appComponent: AppComponent
   ) { }
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      const page = params['page'] ? +params['page'] : 1;
-      this.loadPipelines(page, this.itemsPerPage);
-    });
+    this.loadPipelines(this.currentPage, this.itemsPerPage);
   }
 
   loadPipelines(page: number, itemsPerPage: number, showLoader: boolean = true) {
@@ -83,20 +75,11 @@ export class PipelinesComponent implements OnInit {
   }
 
   onFilterChange() {
-    if (this.filterTimeout) {
-      clearTimeout(this.filterTimeout);
-    }
-
-    this.filterTimeout = setTimeout(() => {
-      this.currentPage = 1;
-      this.loadPipelines(
-        this.currentPage, this.itemsPerPage, false);
-    }, 300);
+    this.currentPage = 1; // Reset to page 1 when filtering
+    this.loadPipelines(this.currentPage, this.itemsPerPage, false);
   }
 
   onPageChange(event: PageEvent) {
-    this.router.navigate(
-      ['/pipelines'], { queryParams: { page: event.pageIndex + 1 } });
     this.loadPipelines(event.pageIndex + 1, event.pageSize, true);
   }
 
