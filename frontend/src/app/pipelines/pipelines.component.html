@@ -1,4 +1,38 @@
 <mat-card>
+  <!-- Card Title with Filter and Spinner -->
+  <mat-card-title>
+    Pipelines
+    <div class="crmi-card-title-buttons">
+      <div class="filter-container" style="position: relative;">
+        <input 
+          matInput 
+          type="text" 
+          placeholder="Filter pipelines by name" 
+          [(ngModel)]="filterText" 
+          (input)="onFilterChange()"
+          style="margin-left: 15px; position: relative; top: 1px;"
+        />
+        <!-- Spinner for filtering pipelines -->
+        <mat-progress-spinner 
+          *ngIf="state === 'loading'" 
+          strokeWidth="5"
+          style="width: 25px; height: 25px; position: absolute; top: 10px; right: -35px;"
+          mode="indeterminate">
+        </mat-progress-spinner>
+      </div>
+      <a mat-raised-button routerLink="/pipelines/new">
+        <mat-icon>add</mat-icon>
+        New Pipeline
+      </a>
+      <button mat-raised-button type="button" (click)="fileImport.click()">
+        <mat-icon>file_upload</mat-icon>
+        Import by template
+      </button>
+      <input hidden type="file" #fileImport (change)="importPipeline($event)"/>
+    </div>
+  </mat-card-title>
+
+  <!-- Main Content with Pipelines List -->
   <div [ngSwitch]="state">
     <!-- LOADING -->
     <ng-template ngSwitchCase="loading">
@@ -11,31 +45,9 @@
         Loading pipelines...
       </div>
     </ng-template>
+
     <!-- LOADED -->
     <ng-template ngSwitchCase="loaded">
-      <mat-card-title>
-        Pipelines
-        <div class="crmi-card-title-buttons">
-          <input 
-            matInput 
-            type="text" 
-            placeholder="Filter pipelines by name" 
-            [(ngModel)]="filterText" 
-            (input)="onFilterChange()"
-            style="margin-left: 15px; position: relative; top: 1px;"
-          />
-          <a mat-raised-button routerLink="/pipelines/new">
-            <mat-icon>add</mat-icon>
-            New Pipeline
-          </a>
-          <button mat-raised-button type="button" (click)="fileImport.click()">
-            <mat-icon>file_upload</mat-icon>
-            Import by template
-          </button>
-          <input hidden type="file" #fileImport (change)="importPipeline($event)"/>
-        </div>
-      </mat-card-title>
-
       <div *ngIf="displayedPipelines.length > 0; else nopipelines">
         <div class="crmi-card-list">
           <div class="crmi-card-list-header">
@@ -92,9 +104,10 @@
         </div>
       </ng-template>
     </ng-template>
+
     <!-- ERROR -->
     <ng-template ngSwitchCase="error">
-      <div class="crmi-error-block">There is error after loading data.</div>
+      <div class="crmi-error-block">There is an error after loading data.</div>
     </ng-template>
   </div>
 </mat-card>
