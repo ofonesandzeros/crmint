@@ -86,10 +86,6 @@ export class PipelinesComponent implements OnInit {
     this.resetPipelineData(false);
   }
 
-  resetPipelines() {
-    this.resetPipelineData(true);
-  }
-
   onPageChange(event: PageEvent) {
     this.loadPipelines(event.pageIndex + 1, event.pageSize, true);
   }

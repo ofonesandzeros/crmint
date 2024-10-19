@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { environment } from 'environments/environment';
 
 @Component({
@@ -23,15 +24,15 @@ import { environment } from 'environments/environment';
 export class NavBarComponent implements OnInit {
   enabled_stages: boolean = environment.enabled_stages;
 
-  // Emit an event to trigger resetting pipelines
-  @Output() resetPipelinesEvent = new EventEmitter<void>();
-
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit() {
   }
 
-  onResetPipelines() {
-    this.resetPipelinesEvent.emit();
+  resetPipelines() {
+    this.router.navigate(['/pipelines'], { queryParamsHandling: 'merge' }).then(() => {
+      this.router.navigateByUrl('/pipelines', { skipLocationChange: true });
+    });
   }
 }
+
