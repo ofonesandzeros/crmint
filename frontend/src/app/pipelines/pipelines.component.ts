@@ -62,6 +62,7 @@ export class PipelinesComponent implements OnInit {
         if (response && Array.isArray(response.pipelines)) {
           this.pipelines = response.pipelines.map(
             pipelineData => new Pipeline(pipelineData));
+          this.displayedPipelines = this.pipelines;
           this.totalPipelines = response.total || 0;
           this.totalPages = Math.ceil(
             this.totalPipelines / this.itemsPerPage);
