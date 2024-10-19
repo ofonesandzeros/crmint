@@ -83,15 +83,12 @@ export class PipelinesComponent implements OnInit {
   }
 
   onFilterChange() {
-    const showLoader = this.filterText.length === 0;
-
     if (this.filterTimeout) {
       clearTimeout(this.filterTimeout);
     }
 
-    // Set up a debounce to wait before firing the filter action
     this.filterTimeout = setTimeout(() => {
-      this.loadPipelines(this.currentPage, this.itemsPerPage, showLoader);
+      this.loadPipelines(this.currentPage, this.itemsPerPage, false);
     }, 300);
   }
 
