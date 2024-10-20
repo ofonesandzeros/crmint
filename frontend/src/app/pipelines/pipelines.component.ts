@@ -48,6 +48,7 @@ export class PipelinesComponent implements OnInit {
   }
 
   loadPipelines(page: number, itemsPerPage: number) {
+    this.state = 'loading';
     const currentRequestId = ++this.requestCounter;
     this.pipelinesService.getPipelines(page, itemsPerPage, this.filterText).then(
       (response: any) => {
