@@ -313,11 +313,9 @@ $crmi-form-label-field: 750px;
 
 // CRMI LOADING BLOCK
 .crmi-loading-block {
-  margin: 0 -24px 0;
-  padding-top: 20px;
+  margin: 24px auto 0;
   text-align: center;
-  border-top: 1px solid #e0e0e0;
-  color: #616161;
+  width: 150px;
   .mat-progress-spinner {
     margin: 10px auto;
   }
