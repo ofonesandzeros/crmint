@@ -53,7 +53,6 @@ export class PipelinesComponent implements OnInit {
     this.pipelinesService.getPipelines(page, itemsPerPage, this.filterText).then(
       (response: any) => {
         if (currentRequestId === this.requestCounter) {
-          console.log('Raw API response:', response);
           if (response && Array.isArray(response.pipelines)) {
             this.pipelines = response.pipelines.map(
               pipelineData => new Pipeline(pipelineData));
