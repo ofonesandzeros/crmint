@@ -93,7 +93,7 @@ export class PipelinesComponent implements OnInit {
   }
 
   onFilterChange() {
-    this.resetPipelineData(false);
+    this.resetPipelineData(true);
   }
 
   onPageChange(event: PageEvent) {
