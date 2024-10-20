@@ -81,7 +81,6 @@ export class PipelinesComponent implements OnInit {
 
   /**
    * Generic method to reset the pipeline data.
-   * @param showLoader: Whether or not to show the loader during the reset.
    */
   resetPipelineData() {
     this.currentPage = 1;
