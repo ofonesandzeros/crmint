@@ -47,13 +47,8 @@ export class PipelinesComponent implements OnInit {
     this.loadPipelines(this.currentPage, this.itemsPerPage);
   }
 
-  loadPipelines(page: number, itemsPerPage: number, showLoader: boolean = true) {
-    if (showLoader) {
-      this.state = 'loading'; // Only show spinner if showLoader is true
-    }
-
+  loadPipelines(page: number, itemsPerPage: number) {
     const currentRequestId = ++this.requestCounter;
-
     this.pipelinesService.getPipelines(page, itemsPerPage, this.filterText).then(
       (response: any) => {
         if (currentRequestId === this.requestCounter) {
@@ -87,17 +82,17 @@ export class PipelinesComponent implements OnInit {
    * Generic method to reset the pipeline data.
    * @param showLoader: Whether or not to show the loader during the reset.
    */
-  resetPipelineData(showLoader: boolean = true) {
+  resetPipelineData() {
     this.currentPage = 1;
-    this.loadPipelines(this.currentPage, this.itemsPerPage, showLoader);
+    this.loadPipelines(this.currentPage, this.itemsPerPage);
   }
 
   onFilterChange() {
-    this.resetPipelineData(true);
+    this.resetPipelineData();
   }
 
   onPageChange(event: PageEvent) {
-    this.loadPipelines(event.pageIndex + 1, event.pageSize, true);
+    this.loadPipelines(event.pageIndex + 1, event.pageSize);
   }
 
   deletePipeline(pipeline) {

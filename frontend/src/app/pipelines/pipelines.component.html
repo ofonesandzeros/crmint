@@ -12,13 +12,6 @@
           (input)="onFilterChange()"
           style="margin-left: 15px; position: relative; top: 1px;"
         />
-        <!-- Spinner for filtering pipelines -->
-        <mat-progress-spinner 
-          *ngIf="state === 'loading'" 
-          strokeWidth="5"
-          style="width: 25px; height: 25px; position: absolute; top: 10px; right: -35px;"
-          mode="indeterminate">
-        </mat-progress-spinner>
       </div>
       <a mat-raised-button routerLink="/pipelines/new">
         <mat-icon>add</mat-icon>
