@@ -33,6 +33,7 @@ export class PipelinesComponent implements OnInit {
   totalPages: number = 0;
   totalPipelines: number = 0;
   filesToUpload: Array<File> = [];
+  filterTimeout: any;
   filterText: string = '';
   state: 'loading' | 'loaded' | 'error' = 'loading';
 
@@ -88,7 +89,12 @@ export class PipelinesComponent implements OnInit {
   }
 
   onFilterChange() {
-    this.resetPipelineData();
+    if (this.filterTimeout) {
+      clearTimeout(this.filterTimeout);
+    }
+    this.filterTimeout = setTimeout(() => {
+      this.resetPipelineData();
+    }, 300);
   }
 
   onPageChange(event: PageEvent) {
