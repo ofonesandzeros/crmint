@@ -384,7 +384,6 @@ def create_cloudsql_instance_if_needed(stage, debug=False):
   network_project = stage.network_project
   network = stage.network
   database_ha_type = stage.database_ha_type
-  database_flags = "character_set_server=utf8mb4,collation_server=utf8mb4_unicode_ci"
   if stage.use_vpc:
     cmd = textwrap.dedent(f"""\
         {GCLOUD} beta sql instances create {db_instance_name} \\
@@ -395,8 +394,7 @@ def create_cloudsql_instance_if_needed(stage, debug=False):
             --storage-auto-increase \\
             --network=projects/{network_project}/global/networks/{network} \\
             --availability-type={database_ha_type} \\
-            --no-assign-ip \\
-            --database-flags={database_flags}
+            --no-assign-ip
         """)
     shared.execute_command(
         'Creating a CloudSQL instance (with beta VPC)', cmd, debug=debug)
@@ -408,8 +406,7 @@ def create_cloudsql_instance_if_needed(stage, debug=False):
             --project={project_id} \\
             --database-version MYSQL_8_0 \\
             --storage-auto-increase \\
-            --availability-type={database_ha_type} \\
-            --database-flags={database_flags}
+            --availability-type={database_ha_type}
         """)
     shared.execute_command(
         'Creating a CloudSQL instance', cmd, debug=debug)
