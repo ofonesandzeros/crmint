@@ -103,25 +103,23 @@ export class PipelinesComponent implements OnInit {
   deletePipeline(pipeline) {
     if (confirm(`Are you sure you want to delete ${pipeline.name}?`)) {
       const index = this.pipelines.indexOf(pipeline);
-      if (index !== -1) {
-        this.pipelines.splice(index, 1);  // Remove the pipeline from the list
 
+      if (index !== -1) {
         this.pipelinesService.deletePipeline(pipeline.id).then(
           () => {
-            this.totalPipelines--;
-            this.updateDisplayedPipelines();
-            this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
+            this.totalPipelines--;  // Decrease the total pipeline count
 
-            if (this.displayedPipelines.length === 0 && this.currentPage > 1) {
-              this.currentPage--;
-              this.loadPipelines(this.currentPage, this.itemsPerPage);
+            // If deleting the last item on the page, move to the previous page
+            if (this.displayedPipelines.length === 1 && this.currentPage > 1) {
+              this.currentPage--;  // Move back to the previous page
             }
+
+            // Reload pipelines for the updated page (either same page or previous page)
+            this.loadPipelines(this.currentPage, this.itemsPerPage);
           },
           (err) => {
             console.log('Error deleting pipeline', err);
             this.appComponent.addAlert('Failed to delete pipeline.');
-            // Revert the view back to its original state
-            this.pipelines.splice(index, 0, pipeline);
           }
         );
       }
