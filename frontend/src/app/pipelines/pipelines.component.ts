@@ -56,6 +56,23 @@ export class PipelinesComponent implements OnInit {
     return date.toLocaleTimeString('en-US', { timeZone: fullTimeZone, timeZoneName: 'short' }).split(' ').pop() || fullTimeZone;
   }
 
+  formatToLocalTimezone(utcTime: string): string {
+    const date = new Date(utcTime + 'Z');
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+    
+    const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date);
+    return formattedDate.replace(',', '');
+  }
+
   loadPipelines(page: number, itemsPerPage: number) {
     this.state = 'loading';
     const currentRequestId = ++this.requestCounter;

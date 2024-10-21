@@ -63,7 +63,7 @@
               <app-status [status]="pipeline.status"></app-status>
             </div>
             <div class="crmi-card-list-item-col crmi-card-list-item-col-2">
-              {{ pipeline.updated_at | date:'medium':undefined:'en-US' }}
+              {{ formatToLocalTimezone(pipeline.updated_at) }}
             </div>
             <div class="crmi-card-list-item-col crmi-card-list-item-col-1">
               <a class="crmi-link" [routerLink]="['/pipelines', pipeline.id, 'edit']" [class.disabled]="!pipeline.showed_running()">
