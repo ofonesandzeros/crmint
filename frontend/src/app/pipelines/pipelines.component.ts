@@ -58,15 +58,13 @@ export class PipelinesComponent implements OnInit {
 
   formatToLocalTimezone(utcTime: string | null): string {
     if (!utcTime) {
-      return ''; // Return empty string if the date is invalid or null
+      return '';
     }
-
     try {
       const date = new Date(utcTime);
       if (isNaN(date.getTime())) {
         throw new Error('Invalid time value');
       }
-
       const options: Intl.DateTimeFormatOptions = {
         year: 'numeric',
         month: '2-digit',
@@ -77,18 +75,13 @@ export class PipelinesComponent implements OnInit {
         hour12: false, // To match the format you want
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
       };
-
-      // Use 'en-US' locale for formatting
       const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
-
-      // Reformat the string to 'YYYY-MM-DD HH:mm:ss'
       const [month, day, year] = formattedDate.split(', ')[0].split('/');
       const time = formattedDate.split(', ')[1];
-
       return `${year}-${month}-${day} ${time}`;
     } catch (error) {
       console.error('Error formatting date:', error);
-      return 'Invalid Date'; // Return a fallback string for invalid dates
+      return 'Invalid Date';
     }
   }
 
