@@ -53,7 +53,9 @@ export class PipelinesComponent implements OnInit {
   getShortTimeZone(): string {
     const fullTimeZone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
     const date = new Date();
-    return date.toLocaleTimeString('en-US', { timeZone: fullTimeZone, timeZoneName: 'short' }).split(' ').pop() || fullTimeZone;
+    return date.toLocaleTimeString(
+      'en-US', { timeZone: fullTimeZone, timeZoneName: 'short' }
+    ).split(' ').pop() || fullTimeZone;
   }
 
   formatToLocalTimezone(utcTime: string | null): string {
@@ -113,9 +115,6 @@ export class PipelinesComponent implements OnInit {
     );
   }
 
-  /**
-   * Generic method to reset the pipeline data.
-   */
   resetPipelineData() {
     this.currentPage = 1;
     this.loadPipelines(this.currentPage, this.itemsPerPage);
