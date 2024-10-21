@@ -103,23 +103,28 @@ export class PipelinesComponent implements OnInit {
   deletePipeline(pipeline) {
     if (confirm(`Are you sure you want to delete ${pipeline.name}?`)) {
       const index = this.pipelines.indexOf(pipeline);
-      this.pipelines.splice(index, 1);
+      if (index !== -1) {
+        this.pipelines.splice(index, 1);  // Remove the pipeline from the list
 
-      this.pipelinesService.deletePipeline(pipeline.id)
-          .catch(err => {
-            console.log('error', err);
-            const defaultMessage = 'Could not delete pipeline.';
-            let message;
-            try {
-              message = JSON.parse(err._body).message || defaultMessage;
-            } catch (e) {
-              message = defaultMessage;
+        this.pipelinesService.deletePipeline(pipeline.id).then(
+          () => {
+            this.totalPipelines--;
+            this.updateDisplayedPipelines();
+            this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
+
+            if (this.displayedPipelines.length === 0 && this.currentPage > 1) {
+              this.currentPage--;
+              this.loadPipelines(this.currentPage, this.itemsPerPage);
             }
-
-            this.appComponent.addAlert(message);
+          },
+          (err) => {
+            console.log('Error deleting pipeline', err);
+            this.appComponent.addAlert('Failed to delete pipeline.');
             // Revert the view back to its original state
             this.pipelines.splice(index, 0, pipeline);
-          });
+          }
+        );
+      }
     }
   }
 
