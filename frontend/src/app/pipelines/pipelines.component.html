@@ -47,7 +47,7 @@
             <div class="crmi-card-list-item">
               <div class="crmi-card-list-item-col">Pipeline</div>
               <div class="crmi-card-list-item-col crmi-card-list-item-col-2">Status</div>
-              <div class="crmi-card-list-item-col crmi-card-list-item-col-2">Last Activity</div>
+              <div class="crmi-card-list-item-col crmi-card-list-item-col-2">Last Activity ({{ timeZone }})</div>
               <div class="crmi-card-list-item-col crmi-card-list-item-col-1">Actions</div>
             </div>
           </div>
@@ -63,7 +63,7 @@
               <app-status [status]="pipeline.status"></app-status>
             </div>
             <div class="crmi-card-list-item-col crmi-card-list-item-col-2">
-              {{ pipeline.updated_at | date:'medium':undefined:'en-US' }} {{ timeZone }}
+              {{ pipeline.updated_at | date:'medium':undefined:'en-US' }}
             </div>
             <div class="crmi-card-list-item-col crmi-card-list-item-col-1">
               <a class="crmi-link" [routerLink]="['/pipelines', pipeline.id, 'edit']" [class.disabled]="!pipeline.showed_running()">
