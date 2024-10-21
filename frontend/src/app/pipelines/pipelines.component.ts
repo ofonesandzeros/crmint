@@ -45,6 +45,7 @@ export class PipelinesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.timeZone = this.getShortTimeZone();
     this.loadPipelines(this.currentPage, this.itemsPerPage);
   }
 
@@ -99,6 +100,13 @@ export class PipelinesComponent implements OnInit {
   onPageChange(event: PageEvent) {
     this.loadPipelines(event.pageIndex + 1, event.pageSize);
   }
+
+  getShortTimeZone(): string {
+    const fullTimeZone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const date = new Date();
+    return date.toLocaleTimeString('en-US', { timeZone: fullTimeZone, timeZoneName: 'short' }).split(' ').pop() || fullTimeZone;
+  }
+
 
   deletePipeline(pipeline) {
     if (confirm(`Are you sure you want to delete ${pipeline.name}?`)) {
