@@ -1,5 +1,4 @@
 <mat-card>
-  <!-- Card Title with Filter and Spinner -->
   <mat-card-title>
     Pipelines
     <div class="crmi-card-title-buttons">
@@ -24,8 +23,6 @@
       <input hidden type="file" #fileImport (change)="importPipeline($event)"/>
     </div>
   </mat-card-title>
-
-  <!-- Main Content with Pipelines List -->
   <div [ngSwitch]="state">
     <!-- LOADING -->
     <ng-template ngSwitchCase="loading">
