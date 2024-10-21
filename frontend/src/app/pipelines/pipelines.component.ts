@@ -123,9 +123,29 @@ export class PipelinesComponent implements OnInit {
     }
   }
 
-  importPipeline(data) {
-    this.pipelinesService.importPipeline(data.target.files[0])
-                         .then(pipeline => this.pipelines.push(plainToClass(Pipeline, pipeline as Pipeline)));
+  updateDisplayedPipelines() {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.displayedPipelines = this.pipelines.slice(start, end);
   }
 
+  importPipeline(data) {
+    this.pipelinesService.importPipeline(data.target.files[0]).then(
+      (pipeline) => {
+        const importedPipeline = plainToClass(Pipeline, pipeline as Pipeline);
+        this.pipelines.push(importedPipeline);
+        this.totalPipelines++;
+        this.updateDisplayedPipelines();
+        this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
+        if (this.pipelines.length > this.itemsPerPage) {
+          this.currentPage = this.totalPages;
+          this.loadPipelines(this.currentPage, this.itemsPerPage);
+        }
+      },
+      (error) => {
+        console.error('Error importing pipeline:', error);
+        this.appComponent.addAlert('Failed to import pipeline.');
+      }
+    );
+  }
 }
