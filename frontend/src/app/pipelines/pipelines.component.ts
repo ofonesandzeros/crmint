@@ -62,7 +62,7 @@ export class PipelinesComponent implements OnInit {
     }
 
     try {
-      const date = new Date(utcTime + 'Z'); // 'Z' ensures it's treated as UTC
+      const date = new Date(utcTime);
       if (isNaN(date.getTime())) {
         throw new Error('Invalid time value');
       }
