@@ -56,21 +56,40 @@ export class PipelinesComponent implements OnInit {
     return date.toLocaleTimeString('en-US', { timeZone: fullTimeZone, timeZoneName: 'short' }).split(' ').pop() || fullTimeZone;
   }
 
-  formatToLocalTimezone(utcTime: string): string {
-    const date = new Date(utcTime + 'Z');
-    const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    };
-    
-    const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date);
-    return formattedDate.replace(',', '');
+  formatToLocalTimezone(utcTime: string | null): string {
+    if (!utcTime) {
+      return ''; // Return empty string if the date is invalid or null
+    }
+
+    try {
+      const date = new Date(utcTime + 'Z'); // 'Z' ensures it's treated as UTC
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid time value');
+      }
+
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false, // To match the format you want
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+
+      // Use 'en-US' locale for formatting
+      const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+
+      // Reformat the string to 'YYYY-MM-DD HH:mm:ss'
+      const [month, day, year] = formattedDate.split(', ')[0].split('/');
+      const time = formattedDate.split(', ')[1];
+
+      return `${year}-${month}-${day} ${time}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid Date'; // Return a fallback string for invalid dates
+    }
   }
 
   loadPipelines(page: number, itemsPerPage: number) {
