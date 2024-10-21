@@ -1,4 +1,4 @@
-# Copyright 2018 Google Inc
+# Copyright 2024 Google Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,8 +76,17 @@ pipeline_fields = {
     'message': fields.String,
     'has_jobs': fields.Boolean,
 }
+pipeline_list_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'status': fields.String,
+    'updated_at': fields.String,
+    'run_on_schedule': fields.Boolean,
+    'schedules': fields.List(fields.Nested(schedule_fields)),
+    'has_jobs': fields.Boolean
+}
 paginated_pipelines_fields = {
-    'pipelines': fields.List(fields.Nested(pipeline_fields)),
+    'pipelines': fields.List(fields.Nested(pipeline_list_fields)),
     'total': fields.Integer,
     'page': fields.Integer,
     'itemsPerPage': fields.Integer
@@ -152,12 +161,7 @@ class PipelineList(Resource):
       tracker = insight.GAProvider()
       tracker.track_event(category='pipelines', action='list')
 
-      query = models.Pipeline.query.options(
-          orm.defaultload(models.Pipeline.jobs).defaultload(
-              models.Job.params).defer(models.Param.value),
-          orm.defaultload(models.Pipeline.jobs).defaultload(
-              models.Job.params).defer(models.Param.runtime_value)
-      ).order_by(models.Pipeline.updated_at.desc())
+      query = models.Pipeline.query.order_by(models.Pipeline.updated_at.desc())
       if args['filter']:
         query = query.filter(models.Pipeline.name.ilike(f"%{args['filter']}%"))
       total_pipelines = query.count()
