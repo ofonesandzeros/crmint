@@ -103,18 +103,13 @@ export class PipelinesComponent implements OnInit {
   deletePipeline(pipeline) {
     if (confirm(`Are you sure you want to delete ${pipeline.name}?`)) {
       const index = this.pipelines.indexOf(pipeline);
-
       if (index !== -1) {
         this.pipelinesService.deletePipeline(pipeline.id).then(
           () => {
-            this.totalPipelines--;  // Decrease the total pipeline count
-
-            // If deleting the last item on the page, move to the previous page
+            this.totalPipelines--;
             if (this.displayedPipelines.length === 1 && this.currentPage > 1) {
-              this.currentPage--;  // Move back to the previous page
+              this.currentPage--;
             }
-
-            // Reload pipelines for the updated page (either same page or previous page)
             this.loadPipelines(this.currentPage, this.itemsPerPage);
           },
           (err) => {
