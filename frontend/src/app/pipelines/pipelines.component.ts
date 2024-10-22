@@ -67,8 +67,7 @@ export class PipelinesComponent implements OnInit {
       if (isNaN(date.getTime())) {
         throw new Error('Invalid time value');
       }
-
-      return date.toLocaleString('en-US', {
+      const formattedDate = date.toLocaleString('en-US', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -78,6 +77,9 @@ export class PipelinesComponent implements OnInit {
         hour12: false,
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
       }).replace(',', '');
+      const [month, day, year] = formattedDate.split(' ')[0].split('/');
+      const time = formattedDate.split(' ')[1];
+      return `${month}-${day}-${year} ${time}`;
     } catch (error) {
       console.error('Error formatting date:', error);
       return 'Invalid Date';
