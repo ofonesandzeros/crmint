@@ -167,7 +167,10 @@ class PipelineList(Resource):
       total_pipelines = query.count()
       pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
       for pipeline in pipelines:
-        pipeline.updated_at = pipeline.updated_at.isoformat() + 'Z' if pipeline.updated_at else None
+        pipeline.updated_at = (
+          pipeline.updated_at.isoformat() + 'Z'
+          if pipeline.updated_at else None
+        )
       return {
         'pipelines': pipelines,
         'total': total_pipelines,
