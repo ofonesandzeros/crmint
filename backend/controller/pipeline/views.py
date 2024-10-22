@@ -162,10 +162,8 @@ class PipelineList(Resource):
       tracker.track_event(category='pipelines', action='list')
 
       query = models.Pipeline.query.options(
-          orm.defaultload(models.Pipeline.jobs).defaultload(
-              models.Job.params).defer(models.Param.value),
-          orm.defaultload(models.Pipeline.jobs).defaultload(
-              models.Job.params).defer(models.Param.runtime_value)
+          orm.noload(models.Pipeline.jobs),
+          orm.noload(models.Pipeline.params)
       ).order_by(models.Pipeline.updated_at.desc())
       if args['filter']:
         query = query.filter(models.Pipeline.name.ilike(f"%{args['filter']}%"))
