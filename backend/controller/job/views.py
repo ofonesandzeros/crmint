@@ -126,15 +126,6 @@ class JobList(Resource):
     #jobs = pipeline.jobs
     return jobs
 
-    models.Job.query
-                .filter_by(pipeline_id=args['pipeline_id'])
-                .options(
-                    orm.noload(models.Job.params),
-                    orm.noload(models.Job.start_conditions)
-                )
-                .order_by(models.Job.id)
-                .all())
-
   @marshal_with(job_fields)
   def post(self):
     args = parser.parse_args()
