@@ -115,8 +115,25 @@ class JobList(Resource):
   def get(self):
     args = parser.parse_args()
     pipeline = models.Pipeline.find(args['pipeline_id'])
-    jobs = pipeline.jobs
+    jobs = (
+      models.Job.query
+        .filter_by(pipeline_id=args['pipeline_id'])
+        .options(
+          orm.load_only('id', 'name', 'status'),
+          orm.noload(models.Job.params),
+          orm.noload(models.Job.start_conditions)
+      ).all())
+    #jobs = pipeline.jobs
     return jobs
+
+    models.Job.query
+                .filter_by(pipeline_id=args['pipeline_id'])
+                .options(
+                    orm.noload(models.Job.params),
+                    orm.noload(models.Job.start_conditions)
+                )
+                .order_by(models.Job.id)
+                .all())
 
   @marshal_with(job_fields)
   def post(self):
