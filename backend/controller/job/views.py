@@ -114,15 +114,8 @@ class JobList(Resource):
   @marshal_with(job_fields)
   def get(self):
     args = parser.parse_args()
-    #pipeline = models.Pipeline.find(args['pipeline_id'])
-    #jobs = pipeline.jobs
-    jobs = models.Job.query.options(
-      noload('params'),
-      noload('start_conditions'),
-      noload('affected_conditions'),
-      noload('dependent_jobs'),
-      noload('affecting_jobs')
-    ).filter_by(pipeline_id=args['pipeline_id']).all()
+    pipeline = models.Pipeline.find(args['pipeline_id'])
+    jobs = pipeline.jobs
     return jobs
 
   @marshal_with(job_fields)
