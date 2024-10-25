@@ -30,7 +30,11 @@ export class NavBarComponent implements OnInit {
   }
 
   refreshPipelines() {
-    this.router.navigate(['/pipelines'], { queryParams: { refresh: new Date().getTime() } });
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    this.router.onSameUrlNavigation = 'reload';
+    this.router.navigate(['/pipelines']).then(() => {
+      this.router.routeReuseStrategy.shouldReuseRoute = () => true;
+    });
   }
 
 }
