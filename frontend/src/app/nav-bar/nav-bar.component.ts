@@ -27,14 +27,22 @@ export class NavBarComponent implements OnInit {
   constructor(private router: Router) { }
 
   ngOnInit() {
+    // Reset shouldReuseRoute after any successful navigation
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.router.routeReuseStrategy.shouldReuseRoute = () => true;
+      });
   }
 
+  // Modify the refreshPipelines method
   refreshPipelines() {
-    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    this.router.routeReuseStrategy.shouldReuseRoute = (route) => {
+      // Disable reuse only for the `/pipelines` route
+      return route.routeConfig?.path !== 'pipelines';
+    };
     this.router.onSameUrlNavigation = 'reload';
-    this.router.navigate(['/pipelines']).then(() => {
-      this.router.routeReuseStrategy.shouldReuseRoute = () => true;
-    });
+    this.router.navigate(['/pipelines']);
   }
 
 }
