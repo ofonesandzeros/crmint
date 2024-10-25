@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { environment } from 'environments/environment';
 
 @Component({
@@ -21,17 +21,14 @@ import { environment } from 'environments/environment';
   templateUrl: './nav-bar.component.html',
   styleUrls: ['./nav-bar.component.sass']
 })
-export class NavBarComponent implements OnInit {
+export class NavBarComponent {
   enabled_stages: boolean = environment.enabled_stages;
 
   constructor(private router: Router) { }
 
-  ngOnInit() {
-  }
-
   refreshPipelines() {
     if (this.router.url === '/pipelines') {
-      this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigateByUrl('/refresh', { skipLocationChange: true }).then(() => {
         this.router.navigate(['/pipelines']);
       });
     } else {
