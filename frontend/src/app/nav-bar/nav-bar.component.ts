@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { environment } from 'environments/environment';
 
 @Component({
@@ -27,22 +27,15 @@ export class NavBarComponent implements OnInit {
   constructor(private router: Router) { }
 
   ngOnInit() {
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.router.routeReuseStrategy.shouldReuseRoute = () => true;
-        this.router.onSameUrlNavigation = 'ignore';
-      }
-    });
   }
 
   refreshPipelines() {
-    this.router.routeReuseStrategy.shouldReuseRoute = (route) => {
-      return route.routeConfig?.path !== 'pipelines';
-    };
-    this.router.onSameUrlNavigation = 'reload';
-    this.router.navigate(['/pipelines']).then(() => {
-      this.router.routeReuseStrategy.shouldReuseRoute = () => true;
-      this.router.onSameUrlNavigation = 'ignore';
-    });
+    if (this.router.url === '/pipelines') {
+      this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+        this.router.navigate(['/pipelines']);
+      });
+    } else {
+      this.router.navigate(['/pipelines']);
+    }
   }
 }
