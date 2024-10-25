@@ -12,20 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { ApiService } from 'app/api.service';
+import { Pipeline } from 'app/models/pipeline';
+
+interface PaginatedPipelines {
+  pipelines: Pipeline[];
+  total: number;
+  page: number;
+  itemsPerPage: number;
+}
 
 @Injectable()
 export class PipelinesService extends ApiService {
 
   private url = `${this.getHost()}/pipelines`;
 
-  getPipelines() {
+  getPipelines(page: number = 1, itemsPerPage: number = 10, filterText: string = ''): Promise<PaginatedPipelines> {
     this.removeContentTypeHeader();
-    return this.http.get(this.url, this.options)
-                    .toPromise()
-                    .catch(this.handleError);
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('itemsPerPage', itemsPerPage.toString())
+      .set('filter', filterText);
+    return this.http.get<PaginatedPipelines>(this.url, { ...this.options, params })
+      .toPromise()
+      .catch(this.handleError);
   }
 
   getPipeline(id) {

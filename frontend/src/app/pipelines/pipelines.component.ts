@@ -13,9 +13,8 @@
 // limitations under the License.
 
 import { Component, OnInit, Inject, forwardRef } from '@angular/core';
-
+import { PageEvent } from '@angular/material/paginator';
 import { plainToClass } from 'class-transformer';
-
 import { Pipeline } from 'app/models/pipeline';
 import { PipelinesService } from './shared/pipelines.service';
 import { AppComponent } from 'app/app.component';
@@ -28,8 +27,18 @@ import { AppComponent } from 'app/app.component';
 export class PipelinesComponent implements OnInit {
 
   pipelines: Pipeline[] = [];
+  displayedPipelines: Pipeline[] = [];
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  totalPages: number = 0;
+  totalPipelines: number = 0;
   filesToUpload: Array<File> = [];
-  state = 'loading'; // State has one of values: loading, loaded, error
+  filterTimeout: any;
+  filterText: string = '';
+  state: 'loading' | 'loaded' | 'error' = 'loading';
+  timeZone: string;
+
+  private requestCounter = 0;
 
   constructor(
     private pipelinesService: PipelinesService,
@@ -37,41 +46,140 @@ export class PipelinesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.pipelinesService.getPipelines()
-        .then(data => {
-          this.pipelines = plainToClass(Pipeline, data as Pipeline[]);
-          this.state = 'loaded';
-        }).catch(err => {
+    this.timeZone = this.getShortTimeZone();
+    this.loadPipelines(this.currentPage, this.itemsPerPage);
+  }
+
+  getShortTimeZone(): string {
+    const fullTimeZone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const date = new Date();
+    return date.toLocaleTimeString(
+      'en-US', { timeZone: fullTimeZone, timeZoneName: 'short' }
+    ).split(' ').pop() || fullTimeZone;
+  }
+
+  formatToLocalTimezone(utcTime: string | null): string {
+    if (!utcTime) {
+      return '';
+    }
+    try {
+      const date = new Date(utcTime);
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid time value');
+      }
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+      const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+      const [month, day, year] = formattedDate.split(', ')[0].split('/');
+      const time = formattedDate.split(', ')[1];
+      return `${year}-${month}-${day} ${time}`;
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid Date';
+    }
+  }
+
+  loadPipelines(page: number, itemsPerPage: number) {
+    this.state = 'loading';
+    const currentRequestId = ++this.requestCounter;
+    this.pipelinesService.getPipelines(page, itemsPerPage, this.filterText).then(
+      (response: any) => {
+        if (currentRequestId === this.requestCounter) {
+          if (response && Array.isArray(response.pipelines)) {
+            this.pipelines = response.pipelines.map(
+              pipelineData => new Pipeline(pipelineData));
+            this.displayedPipelines = this.pipelines;
+            this.totalPipelines = response.total || 0;
+            this.totalPages = Math.ceil(
+              this.totalPipelines / this.itemsPerPage);
+            this.currentPage = response.page;
+            this.itemsPerPage = response.itemsPerPage;
+            this.state = 'loaded';
+          } else {
+            console.error('Unexpected response structure:', response);
+            this.state = 'error';
+          }
+        }
+      },
+      error => {
+        if (currentRequestId === this.requestCounter) {
+          console.error('Error loading pipelines:', error);
           this.state = 'error';
-        });
+        }
+      }
+    );
+  }
+
+  resetPipelineData() {
+    this.currentPage = 1;
+    this.loadPipelines(this.currentPage, this.itemsPerPage);
+  }
+
+  onFilterChange() {
+    if (this.filterTimeout) {
+      clearTimeout(this.filterTimeout);
+    }
+    this.filterTimeout = setTimeout(() => {
+      this.resetPipelineData();
+    }, 300);
+  }
+
+  onPageChange(event: PageEvent) {
+    this.loadPipelines(event.pageIndex + 1, event.pageSize);
   }
 
   deletePipeline(pipeline) {
     if (confirm(`Are you sure you want to delete ${pipeline.name}?`)) {
       const index = this.pipelines.indexOf(pipeline);
-      this.pipelines.splice(index, 1);
-
-      this.pipelinesService.deletePipeline(pipeline.id)
-          .catch(err => {
-            console.log('error', err);
-            const defaultMessage = 'Could not delete pipeline.';
-            let message;
-            try {
-              message = JSON.parse(err._body).message || defaultMessage;
-            } catch (e) {
-              message = defaultMessage;
+      if (index !== -1) {
+        this.pipelinesService.deletePipeline(pipeline.id).then(
+          () => {
+            this.totalPipelines--;
+            if (this.displayedPipelines.length === 1 && this.currentPage > 1) {
+              this.currentPage--;
             }
-
-            this.appComponent.addAlert(message);
-            // Revert the view back to its original state
-            this.pipelines.splice(index, 0, pipeline);
-          });
+            this.loadPipelines(this.currentPage, this.itemsPerPage);
+          },
+          (err) => {
+            console.log('Error deleting pipeline', err);
+            this.appComponent.addAlert('Failed to delete pipeline.');
+          }
+        );
+      }
     }
   }
 
-  importPipeline(data) {
-    this.pipelinesService.importPipeline(data.target.files[0])
-                         .then(pipeline => this.pipelines.push(plainToClass(Pipeline, pipeline as Pipeline)));
+  updateDisplayedPipelines() {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.displayedPipelines = this.pipelines.slice(start, end);
   }
 
+  importPipeline(data) {
+    this.pipelinesService.importPipeline(data.target.files[0]).then(
+      (pipeline) => {
+        const importedPipeline = plainToClass(Pipeline, pipeline as Pipeline);
+        this.pipelines.push(importedPipeline);
+        this.totalPipelines++;
+        this.updateDisplayedPipelines();
+        this.totalPages = Math.ceil(this.totalPipelines / this.itemsPerPage);
+        if (this.pipelines.length > this.itemsPerPage) {
+          this.currentPage = this.totalPages;
+          this.loadPipelines(this.currentPage, this.itemsPerPage);
+        }
+      },
+      (error) => {
+        console.error('Error importing pipeline:', error);
+        this.appComponent.addAlert('Failed to import pipeline.');
+      }
+    );
+  }
 }

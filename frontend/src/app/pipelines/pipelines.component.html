@@ -1,8 +1,32 @@
 <mat-card>
+  <mat-card-title>
+    Pipelines
+    <div class="crmi-card-title-buttons">
+      <div class="filter-container" style="position: relative;">
+        <input 
+          matInput 
+          type="text" 
+          placeholder="Filter pipelines by name" 
+          [(ngModel)]="filterText" 
+          (input)="onFilterChange()"
+          style="margin-left: 15px; position: relative; top: 1px;"
+        />
+      </div>
+      <a mat-raised-button routerLink="/pipelines/new">
+        <mat-icon>add</mat-icon>
+        New Pipeline
+      </a>
+      <button mat-raised-button type="button" (click)="fileImport.click()">
+        <mat-icon>file_upload</mat-icon>
+        Import by template
+      </button>
+      <input hidden type="file" #fileImport (change)="importPipeline($event)"/>
+    </div>
+  </mat-card-title>
   <div [ngSwitch]="state">
     <!-- LOADING -->
     <ng-template ngSwitchCase="loading">
-      <div class="crmi-loading-block">
+      <div class="crmi-pipelines-loading">
         <mat-progress-spinner
           strokeWidth="10"
           style="width:100px;height:100px;"
@@ -11,34 +35,20 @@
         Loading pipelines...
       </div>
     </ng-template>
+
     <!-- LOADED -->
     <ng-template ngSwitchCase="loaded">
-      <mat-card-title>
-        Pipelines
-        <div class="crmi-card-title-buttons">
-          <a mat-raised-button routerLink="/pipelines/new">
-            <mat-icon>add</mat-icon>
-            New Pipeline
-          </a>
-          <button mat-raised-button type="button" (click)="fileImport.click()">
-            <mat-icon>file_upload</mat-icon>
-            Import by template
-          </button>
-          <input hidden type="file" #fileImport (change)="importPipeline($event)"/>
-        </div>
-      </mat-card-title>
-
-      <div *ngIf="pipelines.length > 0; else nopipelines">
+      <div *ngIf="displayedPipelines.length > 0; else nopipelines">
         <div class="crmi-card-list">
           <div class="crmi-card-list-header">
             <div class="crmi-card-list-item">
               <div class="crmi-card-list-item-col">Pipeline</div>
               <div class="crmi-card-list-item-col crmi-card-list-item-col-2">Status</div>
-              <div class="crmi-card-list-item-col crmi-card-list-item-col-2">Last Activity (UTC)</div>
+              <div class="crmi-card-list-item-col crmi-card-list-item-col-2">Last Activity ({{ timeZone }})</div>
               <div class="crmi-card-list-item-col crmi-card-list-item-col-1">Actions</div>
             </div>
           </div>
-          <div *ngFor="let pipeline of pipelines" class="crmi-card-list-item">
+          <div *ngFor="let pipeline of displayedPipelines" class="crmi-card-list-item">
             <div class="crmi-card-list-item-col">
               <a class="crmi-card-list-item-name" [routerLink]="['/pipelines', pipeline.id]">{{pipeline.name}}</a>
               <div class="crmi-pipelines-item-alarm">
@@ -50,7 +60,7 @@
               <app-status [status]="pipeline.status"></app-status>
             </div>
             <div class="crmi-card-list-item-col crmi-card-list-item-col-2">
-              {{pipeline.updated_at}}
+              {{ formatToLocalTimezone(pipeline.updated_at) }}
             </div>
             <div class="crmi-card-list-item-col crmi-card-list-item-col-1">
               <a class="crmi-link" [routerLink]="['/pipelines', pipeline.id, 'edit']" [class.disabled]="!pipeline.showed_running()">
@@ -65,6 +75,13 @@
             </div>
           </div>
         </div>
+        <mat-paginator [length]="totalPipelines"
+                       [pageSize]="itemsPerPage"
+                       [pageIndex]="currentPage - 1"
+                       [pageSizeOptions]="[5, 10, 20, 50]"
+                       showFirstLastButtons
+                       (page)="onPageChange($event)">
+        </mat-paginator>
       </div>
       <ng-template #nopipelines>
         <div class="crmi-no-items">
@@ -77,9 +94,10 @@
         </div>
       </ng-template>
     </ng-template>
+
     <!-- ERROR -->
     <ng-template ngSwitchCase="error">
-      <div class="crmi-error-block">There is error after loading data.</div>
+      <div class="crmi-error-block">There is an error after loading data.</div>
     </ng-template>
   </div>
 </mat-card>

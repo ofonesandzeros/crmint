@@ -16,7 +16,6 @@
 
 import os
 from typing import Any, Optional
-
 from flask import Flask
 
 from controller import extensions
@@ -26,7 +25,6 @@ from controller import result
 from controller import stage
 from controller import starter
 from controller import views
-
 
 def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
   """An application factory.
@@ -38,13 +36,19 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
     The configured Flask application.
   """
   app = Flask(__name__)
+
+  # Set up database connection pooling
   app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-      'DATABASE_URI',
-      'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
+    'DATABASE_URI',
+    'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
+  app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
   if config:
     app.config.update(**config)
+
   register_extensions(app)
   register_blueprints(app)
+
   return app
 
 

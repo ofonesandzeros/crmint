@@ -1,4 +1,4 @@
-# Copyright 2018 Google Inc
+# Copyright 2024 Google Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -76,6 +76,21 @@ pipeline_fields = {
     'message': fields.String,
     'has_jobs': fields.Boolean,
 }
+pipeline_list_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'status': fields.String,
+    'updated_at': fields.String,
+    'run_on_schedule': fields.Boolean,
+    'schedules': fields.List(fields.Nested(schedule_fields)),
+    'has_jobs': fields.Boolean
+}
+paginated_pipelines_fields = {
+    'pipelines': fields.List(fields.Nested(pipeline_list_fields)),
+    'total': fields.Integer,
+    'page': fields.Integer,
+    'itemsPerPage': fields.Integer
+}
 
 
 def abort_if_pipeline_doesnt_exist(pipeline, pipeline_id):
@@ -132,16 +147,42 @@ class PipelineSingle(Resource):
 class PipelineList(Resource):
   """Shows a list of all pipelines, and lets you POST to add new pipelines."""
 
-  @marshal_with(pipeline_fields)
+  @marshal_with(paginated_pipelines_fields)
   def get(self):
-    tracker = insight.GAProvider()
-    tracker.track_event(category='pipelines', action='list')
-    pipelines = models.Pipeline.query.options(
-        (orm.defaultload(models.Pipeline.jobs).defaultload(
-            models.Job.params).defer(models.Param.value)),
-        (orm.defaultload(models.Pipeline.jobs).defaultload(
-            models.Job.params).defer(models.Param.runtime_value))).all()
-    return pipelines
+    try:
+      parser = reqparse.RequestParser()
+      parser.add_argument('page', type=int, default=1, location='args')
+      parser.add_argument('itemsPerPage', type=int, default=10, location='args')
+      parser.add_argument('filter', type=str, default='', location='args')
+      args = parser.parse_args()
+      page = args['page']
+      items_per_page = args['itemsPerPage']
+
+      tracker = insight.GAProvider()
+      tracker.track_event(category='pipelines', action='list')
+
+      query = models.Pipeline.query.options(
+          orm.noload(models.Pipeline.jobs),
+          orm.noload(models.Pipeline.params)
+      ).order_by(models.Pipeline.updated_at.desc())
+      if args['filter']:
+        query = query.filter(models.Pipeline.name.ilike(f"%{args['filter']}%"))
+      total_pipelines = query.count()
+      pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
+      for pipeline in pipelines:
+        pipeline.updated_at = (
+          pipeline.updated_at.isoformat() + 'Z'
+          if pipeline.updated_at else None
+        )
+      return {
+        'pipelines': pipelines,
+        'total': total_pipelines,
+        'page': page,
+        'itemsPerPage': items_per_page
+      }
+    except Exception as e:
+      print(f"Error in PipelineList.get: {str(e)}")
+      return {'error': 'An unexpected error occurred'}, 500
 
   @marshal_with(pipeline_fields)
   def post(self):
