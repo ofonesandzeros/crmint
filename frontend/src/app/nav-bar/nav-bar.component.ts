@@ -30,11 +30,11 @@ export class NavBarComponent implements OnInit {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.router.routeReuseStrategy.shouldReuseRoute = () => true;
+        this.router.onSameUrlNavigation = 'ignore';
       }
     });
   }
 
-  // Modify the refreshPipelines method
   refreshPipelines() {
     this.router.routeReuseStrategy.shouldReuseRoute = (route) => {
       return route.routeConfig?.path !== 'pipelines';
