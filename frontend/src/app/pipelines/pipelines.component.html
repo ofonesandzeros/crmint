@@ -68,7 +68,7 @@
                 Edit
               </a>
               <br/>
-              <button class="crmi-link" (click)="runPipeline(pipeline)" [class.disabled]="pipeline.blocked_managing()">
+              <button class="crmi-link" (click)="runPipeline(pipeline)" [class.disabled]="pipeline.blocked_running()">
                 <mat-icon>play_arrow</mat-icon>
                 Run
               </button>
