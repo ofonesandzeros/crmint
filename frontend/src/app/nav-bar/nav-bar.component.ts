@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { environment } from 'environments/environment';
+import { PipelinesService } from 'app/pipelines/shared/pipelines.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -23,9 +25,24 @@ import { environment } from 'environments/environment';
 export class NavBarComponent implements OnInit {
   enabled_stages: boolean = environment.enabled_stages;
 
-  constructor() { }
+  constructor(private router: Router, private pipelinesService: PipelinesService) { }
 
   ngOnInit() {
   }
 
+  navigateToPipelines() {
+    // Reset pagination state
+    const page = 1;
+    const itemsPerPage = 10;
+    const filter = '';
+
+    // Make API request to fetch the first page of pipelines
+    this.pipelinesService.getPipelines(page, itemsPerPage, filter).then(pipelines => {
+      // Handle the pipelines data as needed
+      console.log('Pipelines:', pipelines);
+    });
+
+    // Navigate to the pipelines view
+    this.router.navigate(['/pipelines']);
+  }
 }
