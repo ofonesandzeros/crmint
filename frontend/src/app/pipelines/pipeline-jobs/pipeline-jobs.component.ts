@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { TimezoneService } from './shared/timezone.service';
+import { TimezoneService } from '../shared/timezone.service';
 import { Job } from 'app/models/job';
 import { Pipeline } from 'app/models/pipeline';
 
