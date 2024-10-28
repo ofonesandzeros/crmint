@@ -43,7 +43,7 @@ export class PipelinesComponent implements OnInit {
 
   constructor(
     private pipelinesService: PipelinesService,
-    @Inject(forwardRef(() => AppComponent)) private appComponent: AppComponent
+    @Inject(forwardRef(() => AppComponent)) private appComponent: AppComponent,
     private timezoneService: TimezoneService
   ) { }
 
