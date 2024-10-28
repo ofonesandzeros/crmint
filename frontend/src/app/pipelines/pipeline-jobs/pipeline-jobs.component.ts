@@ -30,7 +30,7 @@ export class PipelineJobsComponent implements OnInit {
 
   timeZone: string;
 
-  constructor() { }
+  constructor(private timezoneService: TimezoneService) { }
 
   ngOnInit() {
     this.timeZone = this.timezoneService.getShortTimeZone();
