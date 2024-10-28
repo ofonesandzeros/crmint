@@ -30,7 +30,7 @@
           Run
         </a>
         <br>
-        <a class="crmi-link" [routerLink]="['/jobs', job.id, 'edit']" [class.disabled]="!pipeline.showed_running()">
+        <a class="crmi-link" [routerLink]="['/jobs', job.id, 'edit']" [class.disabled]="pipeline.blocked_managing()">
           <mat-icon>edit</mat-icon>
           Edit
         </a>
