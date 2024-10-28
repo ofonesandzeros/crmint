@@ -26,6 +26,8 @@ from controller import stage
 from controller import starter
 from controller import views
 
+from common import crmint_logging
+
 def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
   """An application factory.
 
@@ -35,6 +37,8 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
   Returns:
     The configured Flask application.
   """
+  crmint_logging.log_global_message('[app.create_app()] Entered', log_level='DEBUG')
+
   app = Flask(__name__)
 
   # Set up database connection pooling
@@ -42,12 +46,18 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
     'DATABASE_URI',
     'mysql+mysqlconnector://crmint:crmint@db:3306/crmint_development')
   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+  app.config['SQLALCHEMY_ECHO'] = True
 
   if config:
     app.config.update(**config)
 
+  crmint_logging.log_global_message('[app.create_app()] Registering extensions', log_level='DEBUG')
   register_extensions(app)
+
+  crmint_logging.log_global_message('[app.create_app()] Registering blueprints', log_level='DEBUG')
   register_blueprints(app)
+
+  crmint_logging.log_global_message('[app.create_app()] Exiting', log_level='DEBUG')
 
   return app
 

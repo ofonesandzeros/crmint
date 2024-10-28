@@ -150,6 +150,7 @@ class PipelineList(Resource):
   @marshal_with(paginated_pipelines_fields)
   def get(self):
     try:
+      crmint_logging.log_global_message('[PipelineList.get()] Entered', log_level='DEBUG')
       parser = reqparse.RequestParser()
       parser.add_argument('page', type=int, default=1, location='args')
       parser.add_argument('itemsPerPage', type=int, default=10, location='args')
@@ -162,20 +163,22 @@ class PipelineList(Resource):
       tracker.track_event(category='pipelines', action='list')
 
       query = models.Pipeline.query.options(
-          orm.defaultload(models.Pipeline.jobs).defaultload(
-              models.Job.params).defer(models.Param.value),
-          orm.defaultload(models.Pipeline.jobs).defaultload(
-              models.Job.params).defer(models.Param.runtime_value)
+          orm.noload(models.Pipeline.jobs),
+          orm.noload(models.Pipeline.params)
       ).order_by(models.Pipeline.updated_at.desc())
       if args['filter']:
         query = query.filter(models.Pipeline.name.ilike(f"%{args['filter']}%"))
       total_pipelines = query.count()
+      crmint_logging.log_global_message(f'[PipelineList.get()] Total pipelines {total_pipelines}', log_level='DEBUG')
       pipelines = query.offset((page - 1) * items_per_page).limit(items_per_page).all()
+      crmint_logging.log_global_message('[PipelineList.get()] Pipelines queried', log_level='DEBUG')
       for pipeline in pipelines:
         pipeline.updated_at = (
           pipeline.updated_at.isoformat() + 'Z'
           if pipeline.updated_at else None
         )
+      crmint_logging.log_global_message('[PipelineList.get()] Returning', log_level='DEBUG')
+
       return {
         'pipelines': pipelines,
         'total': total_pipelines,

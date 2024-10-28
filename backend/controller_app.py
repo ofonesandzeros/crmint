@@ -55,6 +55,7 @@ def shutdown_handler(sig: int, frame: types.FrameType) -> None:
 
 if __name__ == '__main__':
   signal.signal(signal.SIGINT, shutdown_handler)  # Handles Ctrl-C locally.
+  crmint_logging.log_global_message('🚀 Running Flask app', log_level='DEBUG')
   app.run(host='0.0.0.0', port=8080, debug=True)
 else:
   # Handles App Engine instance termination.

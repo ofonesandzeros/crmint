@@ -15,6 +15,7 @@
 """Logging helpers."""
 
 import functools
+import os
 from typing import Optional
 
 from google.auth import credentials as auth_credentials
@@ -48,7 +49,14 @@ def log_global_message(message: str, *, log_level: str) -> None:
     log_level: Level of logging (e.g. 'INFO', 'ERROR').
   """
   logger = get_logger()
-  logger.log_text(message, severity=log_level)
+  logger.log_struct({
+      'labels': {
+          'GAE_INSTANCE': os.getenv('GAE_INSTANCE'),
+          'GAE_SERVICE': os.getenv('GAE_SERVICE')
+      },
+      'log_level': log_level,
+      'message': message,
+  })
 
 
 def log_message(
