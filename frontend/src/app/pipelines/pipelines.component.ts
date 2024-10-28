@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { Component, OnInit, Inject, forwardRef } from '@angular/core';
+import { TimezoneService } from './shared/timezone.service';
 import { PageEvent } from '@angular/material/paginator';
 import { plainToClass } from 'class-transformer';
 import { Pipeline } from 'app/models/pipeline';
@@ -43,48 +44,16 @@ export class PipelinesComponent implements OnInit {
   constructor(
     private pipelinesService: PipelinesService,
     @Inject(forwardRef(() => AppComponent)) private appComponent: AppComponent
+    private timezoneService: TimezoneService
   ) { }
 
   ngOnInit() {
-    this.timeZone = this.getShortTimeZone();
+    this.timeZone = this.timezoneService.getShortTimeZone();
     this.loadPipelines(this.currentPage, this.itemsPerPage);
   }
 
-  getShortTimeZone(): string {
-    const fullTimeZone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const date = new Date();
-    return date.toLocaleTimeString(
-      'en-US', { timeZone: fullTimeZone, timeZoneName: 'short' }
-    ).split(' ').pop() || fullTimeZone;
-  }
-
   formatToLocalTimezone(utcTime: string | null): string {
-    if (!utcTime) {
-      return '';
-    }
-    try {
-      const date = new Date(utcTime);
-      if (isNaN(date.getTime())) {
-        throw new Error('Invalid time value');
-      }
-      const options: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      };
-      const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
-      const [month, day, year] = formattedDate.split(', ')[0].split('/');
-      const time = formattedDate.split(', ')[1];
-      return `${year}-${month}-${day} ${time}`;
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid Date';
-    }
+    return this.timezoneService.formatToLocalTimezone(utcTime);
   }
 
   loadPipelines(page: number, itemsPerPage: number) {

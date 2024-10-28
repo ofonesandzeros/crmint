@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { TimezoneService } from './shared/timezone.service';
 import { Job } from 'app/models/job';
 import { Pipeline } from 'app/models/pipeline';
 
@@ -28,47 +29,14 @@ export class PipelineJobsComponent implements OnInit {
   @Output() deleteClicked: EventEmitter<string> = new EventEmitter();
 
   timeZone: string;
-  
+
   constructor() { }
 
   ngOnInit() {
-    this.timeZone = this.getShortTimeZone();
-  }
-
-  getShortTimeZone(): string {
-    const fullTimeZone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const date = new Date();
-    return date.toLocaleTimeString(
-      'en-US', { timeZone: fullTimeZone, timeZoneName: 'short' }
-    ).split(' ').pop() || fullTimeZone;
+    this.timeZone = this.timezoneService.getShortTimeZone();
   }
 
   formatToLocalTimezone(utcTime: string | null): string {
-    if (!utcTime) {
-      return '';
-    }
-    try {
-      const date = new Date(utcTime);
-      if (isNaN(date.getTime())) {
-        throw new Error('Invalid time value');
-      }
-      const options: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      };
-      const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
-      const [month, day, year] = formattedDate.split(', ')[0].split('/');
-      const time = formattedDate.split(', ')[1];
-      return `${year}-${month}-${day} ${time}`;
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid Date';
-    }
+    return this.timezoneService.formatToLocalTimezone(utcTime);
   }
 }
