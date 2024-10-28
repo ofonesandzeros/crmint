@@ -4,7 +4,7 @@
       <div class="crmi-card-list-item-col">Job</div>
       <div class="crmi-card-list-item-col crmi-card-list-item-col-2">Dependency Jobs</div>
       <div class="crmi-card-list-item-col crmi-card-list-item-col-2">Status</div>
-      <div class="crmi-card-list-item-col crmi-card-list-item-col-2">Last Activity (UTC)</div>
+      <div class="crmi-card-list-item-col crmi-card-list-item-col-2">Last Activity ({{ timeZone }})</div>
       <div class="crmi-card-list-item-col crmi-card-list-item-col-1">Actions</div>
     </div>
   </div>
@@ -22,15 +22,15 @@
         <app-status [status]="job.status"></app-status>
       </div>
       <div class="crmi-card-list-item-col crmi-card-list-item-col-2">
-        {{job.updated_at}}
+        {{ formatToLocalTimezone(job.updated_at) }}
       </div>
       <div class="crmi-card-list-item-col crmi-card-list-item-col-1">
-        <a class="crmi-link" (click)="jobStartClicked.emit(job.id)" [class.disabled]="pipeline.blocked_managing()">
+        <a class="crmi-link" (click)="jobStartClicked.emit(job.id)" [class.disabled]="pipeline.blocked_running()">
           <mat-icon>play_arrow</mat-icon>
           Run
         </a>
         <br>
-        <a class="crmi-link" [routerLink]="['/jobs', job.id, 'edit']" [class.disabled]="pipeline.blocked_managing()">
+        <a class="crmi-link" [routerLink]="['/jobs', job.id, 'edit']" [class.disabled]="!pipeline.showed_running()">
           <mat-icon>edit</mat-icon>
           Edit
         </a>

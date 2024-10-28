@@ -182,4 +182,16 @@ export class PipelinesComponent implements OnInit {
       }
     );
   }
+
+  runPipeline(pipeline: Pipeline) {
+    this.pipelinesService.startPipeline(pipeline.id, true)
+      .then(data => {
+        pipeline.status = 'running';
+        this.loadPipelines(this.currentPage, this.itemsPerPage);
+      })
+      .catch(error => {
+        console.error('Error starting pipeline:', error);
+        this.appComponent.addAlert('Failed to start pipeline.');
+      });
+  }
 }
