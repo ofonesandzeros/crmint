@@ -68,6 +68,11 @@
                 Edit
               </a>
               <br/>
+              <button class="crmi-link" (click)="runPipeline(pipeline)" [class.disabled]="pipeline.blocked_managing()">
+                <mat-icon>play_arrow</mat-icon>
+                Run
+              </button>
+              <br/>
               <button class="crmi-link" (click)="deletePipeline(pipeline)" [class.disabled]="pipeline.blocked_managing()">
                 <mat-icon>delete</mat-icon>
                 Delete
