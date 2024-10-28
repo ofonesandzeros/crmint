@@ -36,7 +36,6 @@ export class PipelinesComponent implements OnInit {
   filesToUpload: Array<File> = [];
   filterTimeout: any;
   filterText: string = '';
-  pipelineLoadingStates: { [key: number]: boolean } = {};
   state: 'loading' | 'loaded' | 'error' = 'loading';
   timeZone: string;
 
@@ -154,7 +153,6 @@ export class PipelinesComponent implements OnInit {
   }
 
   runPipeline(pipeline: Pipeline) {
-    this.pipelineLoadingStates[pipeline.id] = true;
     this.pipelinesService.startPipeline(pipeline.id, true)
       .then(data => {
         pipeline.status = 'running';
@@ -163,9 +161,6 @@ export class PipelinesComponent implements OnInit {
       .catch(error => {
         console.error('Error starting pipeline:', error);
         this.appComponent.addAlert('Failed to start pipeline.');
-      })
-      .finally(() => {
-        this.pipelineLoadingStates[pipeline.id] = false;
       });
   }
 }
