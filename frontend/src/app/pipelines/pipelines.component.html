@@ -63,15 +63,15 @@
               {{ formatToLocalTimezone(pipeline.updated_at) }}
             </div>
             <div class="crmi-card-list-item-col crmi-card-list-item-col-1">
-              <a class="crmi-link" [routerLink]="['/pipelines', pipeline.id, 'edit']" [class.disabled]="!pipeline.showed_running()">
-                <mat-icon>edit</mat-icon>
-                Edit
-              </a>
-              <br/>
               <button class="crmi-link" (click)="runPipeline(pipeline)" [class.disabled]="pipeline.blocked_running()">
                 <mat-icon>play_arrow</mat-icon>
                 Run
               </button>
+              <br/>
+              <a class="crmi-link" [routerLink]="['/pipelines', pipeline.id, 'edit']" [class.disabled]="!pipeline.showed_running()">
+                <mat-icon>edit</mat-icon>
+                Edit
+              </a>
               <br/>
               <button class="crmi-link" (click)="deletePipeline(pipeline)" [class.disabled]="pipeline.blocked_managing()">
                 <mat-icon>delete</mat-icon>
