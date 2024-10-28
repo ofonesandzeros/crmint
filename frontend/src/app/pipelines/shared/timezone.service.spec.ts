@@ -38,7 +38,6 @@ describe('TimezoneService', () => {
     const formattedTime = service.formatToLocalTimezone(utcTime);
     expect(formattedTime).toBeDefined();
     expect(typeof formattedTime).toBe('string');
-    // Add more specific expectations based on your locale and expected output
   });
 
   it('should handle null input for formatToLocalTimezone', () => {
