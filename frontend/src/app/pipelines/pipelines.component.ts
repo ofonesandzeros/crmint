@@ -30,13 +30,13 @@ export class PipelinesComponent implements OnInit {
   pipelines: Pipeline[] = [];
   displayedPipelines: Pipeline[] = [];
   currentPage: number = 1;
-  isRunningPipeline: boolean = false;
   itemsPerPage: number = 10;
   totalPages: number = 0;
   totalPipelines: number = 0;
   filesToUpload: Array<File> = [];
   filterTimeout: any;
   filterText: string = '';
+  pipelineLoadingStates: { [key: number]: boolean } = {};
   state: 'loading' | 'loaded' | 'error' = 'loading';
   timeZone: string;
 
@@ -154,7 +154,7 @@ export class PipelinesComponent implements OnInit {
   }
 
   runPipeline(pipeline: Pipeline) {
-    this.isRunningPipeline = true; // Set loading state to true
+    this.pipelineLoadingStates[pipeline.id] = true;
     this.pipelinesService.startPipeline(pipeline.id, true)
       .then(data => {
         pipeline.status = 'running';
@@ -165,7 +165,7 @@ export class PipelinesComponent implements OnInit {
         this.appComponent.addAlert('Failed to start pipeline.');
       })
       .finally(() => {
-        this.isRunningPipeline = false;
+        this.pipelineLoadingStates[pipeline.id] = false;
       });
   }
 }
