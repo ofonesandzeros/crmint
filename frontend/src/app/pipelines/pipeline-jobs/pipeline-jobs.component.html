@@ -25,7 +25,7 @@
         {{ formatToLocalTimezone(job.updated_at) }}
       </div>
       <div class="crmi-card-list-item-col crmi-card-list-item-col-1">
-        <a class="crmi-link" (click)="jobStartClicked.emit(job.id)" [class.disabled]="pipeline.blocked_running()">
+        <a class="crmi-link" (click)="jobStartClicked.emit(job.id)" [class.disabled]="!pipeline.showed_running()">
           <mat-icon>play_arrow</mat-icon>
           Run
         </a>
